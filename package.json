@@ -1,0 +1,15 @@
+{
+  "name": "donerelay",
+  "version": "0.1.0-alpha.1",
+  "description": "Self-hosted Telegram and experimental WeChat approvals, answers, and notifications for AI agents.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "bin": { "donerelay": "src/cli.js" },
+  "scripts": { "start": "node --env-file=.env src/cli.js serve", "test": "node --test", "check": "node --check src/cli.js && node --test", "demo": "node --env-file=.env examples/request.js" },
+  "files": ["src", "skills", "docs", "examples", "README.md", "README.zh-CN.md", "LICENSE", ".env.example"],
+  "repository": { "type": "git", "url": "git+https://github.com/tianxinzh/DoneRelay.git" },
+  "homepage": "https://github.com/tianxinzh/DoneRelay#readme",
+  "bugs": { "url": "https://github.com/tianxinzh/DoneRelay/issues" },
+  "keywords": ["ai-agent", "codex", "agent-skill", "telegram", "wechat", "weixin", "human-in-the-loop", "approval", "notification", "claude-code"]
+}

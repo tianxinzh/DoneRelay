@@ -1,0 +1,7 @@
+{
+  "name": "donerelay-plugins",
+  "owner": { "name": "tianxinzh" },
+  "plugins": [
+    { "name": "donerelay", "source": "./", "description": "Remote notifications and confirmations through a separately configured DoneRelay bridge." }
+  ]
+}
