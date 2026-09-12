@@ -1,7 +1,29 @@
 {
   "name": "donerelay-plugins",
-  "owner": { "name": "tianxinzh" },
+  "owner": {
+    "name": "tianxinzh"
+  },
   "plugins": [
-    { "name": "donerelay", "source": "./", "description": "Remote notifications and confirmations through a separately configured DoneRelay bridge." }
+    {
+      "name": "donerelay",
+      "source": "./",
+      "description": "Telegram notifications and explicit remote confirmations for AI-agent tasks. Requires a self-hosted DoneRelay bridge; WeChat is experimental.",
+      "category": "development",
+      "homepage": "https://github.com/tianxinzh/DoneRelay",
+      "keywords": [
+        "codex",
+        "claude-code",
+        "agent-skills",
+        "ai-agents",
+        "telegram",
+        "telegram-bot",
+        "wechat",
+        "weixin",
+        "human-in-the-loop",
+        "remote-approvals",
+        "notifications",
+        "nodejs"
+      ]
+    }
   ]
 }

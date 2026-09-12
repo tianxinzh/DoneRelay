@@ -1,53 +1,54 @@
-# DoneRelay — Approvals & Notifications for AI Agents
+# DoneRelay — Telegram notifications and remote approvals for AI agents
 
 **Leave the keyboard. Keep the human in the loop.**
 
-DoneRelay is a self-hosted Node.js bridge for **Telegram notifications, remote task approvals, and human answers**, with an **experimental personal WeChat / Weixin transport**. A supported agent can wait for your reply and continue the same live task. Includes a portable **Codex / Claude Code agent skill** and an experimental native **Codex App Server** runner.
+DoneRelay is an open-source, self-hosted **Node.js bridge and agent skill for Codex, Claude Code, and other AI agents**. Receive task-completion notifications, answer questions, and approve or deny a specific operation from Telegram. **Personal WeChat / Weixin support is experimental.**
 
-[简体中文](README.zh-CN.md) · [Security](SECURITY.md) · [Implementation plan](docs/PLAN.md) · [Distribution](docs/DISTRIBUTION.md)
+[简体中文](README.zh-CN.md) · [Install the skill](docs/INSTALLATION.md) · [FAQ](docs/FAQ.md) · [Marketplace status](docs/MARKETPLACES.md) · [Security](SECURITY.md)
 
-> **0.1.0-alpha.1 — source preview.** Offline tests cover the core, channel request shapes, and a simulated Codex session. Live Telegram, Weixin, and authenticated Codex account tests have not been completed. This is not an official OpenAI, Anthropic, Telegram, or Tencent product.
+> **0.1.0-alpha.2 — source preview.** This update improves documentation and plugin packaging, not channel maturity. Live Telegram, Weixin, and authenticated agent acceptance tests are still required. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, or Tencent.
 
-## What it does
+## What problem does it solve?
 
-| Capability | Included in this source preview |
-| --- | --- |
-| Task completion notifications | Telegram; experimental Weixin |
-| Approve / deny an exact operation | Telegram buttons or explicit numbered text replies |
-| Answer a clarification | `answer REQUEST_ID your answer` on either channel |
-| Native Codex pause / continue | Runner-owned App Server connection; experimental |
-| Other agents / Claude Code | Portable skill + HTTP/CLI; not native permission interception |
-| Existing arbitrary terminal or Codex Cloud session takeover | **Not supported / not verified** |
-
-A sample message (illustration, not a live screenshot):
+A long-running agent reaches a decision while you are away. Instead of waiting at the keyboard, receive a specific question on your phone, reply, and let the **same still-running, integrated workflow** read the result. A completion notification closes the loop.
 
 ```text
-DoneRelay | APPROVAL
-Task: website / staging deploy
-Request: A1B2C3D4E5F6
-
-Deploy commit abc123 to staging; production will not change.
-
-approve A1B2C3D4E5F6
-deny A1B2C3D4E5F6
+Agent: “Deploy commit abc123 to staging? Production is unchanged.”
+   → DoneRelay sends request A1B2C3D4E5F6 to your bound private chat
+   → You select Approve or reply: approve A1B2C3D4E5F6
+   → The calling workflow reads the decision and checks native permissions
+   → It may continue that exact operation, once
 ```
 
-The relay does not execute text received from chat. A bound user can resolve one immutable request, once. A reply of “okay” is not approval. Chinese commands are also supported: `批准 ID`, `拒绝 ID`, `回答 ID 内容`.
+This is an illustrated workflow, not a recording of a live account test. Chat replies are never executed as shell commands.
 
-## Quick start: Telegram
+## Compatibility and scope
 
-Requires Node.js 22+ and a Telegram bot you control. No runtime npm dependencies.
+| Integration | What this source includes | Important boundary |
+| --- | --- | --- |
+| Telegram | Notifications, numbered text answers, approve/deny buttons | Bound private user; live acceptance pending |
+| Personal WeChat / Weixin | Experimental text transport and numbered replies | Separate authorized setup; idle-session behavior unverified |
+| Codex skill | Portable `SKILL.md` and standalone Node client | Requires a separately running bridge |
+| Native Codex runner | Experimental runner-owned App Server session | New session only; real installed-version validation pending |
+| Claude Code | Skill packaged as a plugin | Not native Claude permission interception or a Channels plugin |
+| Other agents | Authenticated HTTP API and CLI | Caller must wait, check the result, and enforce host policy |
+| Codex Cloud / arbitrary existing terminal | Not verified / no session takeover | Installation does not grant background execution or connectivity |
 
-### 1. Get and test the source
+## Quick start: Telegram bridge
+
+Requires **Node.js 22+** and a Telegram bot you control. No runtime npm dependencies.
+
+### 1. Get the source and run checks
 
 ```sh
 git clone https://github.com/tianxinzh/DoneRelay.git
 cd DoneRelay
 npm ci --ignore-scripts
 npm test
+npm run check:discovery
 ```
 
-### 2. Configure locally, then start the bridge
+### 2. Configure credentials locally
 
 ```sh
 cp .env.example .env
@@ -55,27 +56,49 @@ chmod 600 .env
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-Put that locally generated value in `DONERELAY_API_TOKEN`. Set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, and `TELEGRAM_USER_ID`. Send your bot a private message first. The IDs must identify your own private chat and user. Use the official Bot API `getUpdates` to inspect the message's `chat.id` and `from.id` locally before starting this poller; do not publish its response. Only one polling client can use a bot at a time, and an existing webhook must be removed before polling.
+Use that locally generated value for `DONERELAY_API_TOKEN`. Set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, and `TELEGRAM_USER_ID` in your private configuration. Send your bot a private message first. Inspect `chat.id` and `from.id` locally using the [Telegram Bot API](https://core.telegram.org/bots/api#getupdates); do not publish the response. A bot must not have another poller or an active webhook competing with this service.
 
 ```sh
 npm start
 ```
 
-For real agent runs, put messaging credentials outside the agent's project and preferably run the bridge as a separate OS user. Give the agent only the bridge URL and API token. Never commit `.env`, bot credentials, or `data/`.
+For actual agent use, keep bot credentials **outside the agent's workspace**, preferably under a separate OS user. Give the agent only the bridge URL and API token. Never commit `.env` or `data/`.
 
-### 3. Try a question, without executing any command
+### 3. Try a harmless question
 
-In a second terminal:
+In another terminal:
 
 ```sh
 npm run demo
 ```
 
-Reply with `answer ID SQLite` using the ID printed in the message. The example prints the answer and exits; it does not deploy or run arbitrary commands.
+Reply `answer ID SQLite` using the ID in the message. This example prints the answer and exits; it does not deploy anything. Chinese replies are supported: `回答 ID 内容`, `批准 ID`, and `拒绝 ID`. “Okay” alone is not an approval.
 
-## Start a Codex task
+## Install in Codex or Claude Code
 
-Install and authenticate Codex separately. Keep the bridge running, then:
+Installation supplies the skill; **it does not provision the bridge**.
+
+For a local Codex skill, from the repository root:
+
+```sh
+mkdir -p ~/.agents/skills
+cp -R skills/donerelay ~/.agents/skills/
+```
+
+Configure the agent's `DONERELAY_URL` and `DONERELAY_API_TOKEN` securely, then request `$donerelay` explicitly. Restart or reload the host as required by your installed version.
+
+For Claude Code, use **DoneRelay's own catalog**, not an official directory listing:
+
+```text
+/plugin marketplace add tianxinzh/DoneRelay
+/plugin install donerelay@donerelay-plugins
+```
+
+Invoke `/donerelay:donerelay` with a bounded request after setup. See [installation and smoke tests](docs/INSTALLATION.md). The root `plugin.json` and `.agents/plugins/marketplace.json` also provide current OpenAI plugin packaging; host-side validation remains required.
+
+## Native Codex: start a task with remote approval handling
+
+Install and authenticate Codex separately. With the bridge running:
 
 ```sh
 node --env-file=.env src/cli.js codex \
@@ -83,64 +106,57 @@ node --env-file=.env src/cli.js codex \
   --prompt "Inspect this project and run its tests."
 ```
 
-This starts a **new** App Server thread with `untrusted` approval policy and `workspace-write` sandbox. It relays supported command/file approvals, structured non-secret questions, and a final completion message. It never returns `acceptForSession` or grants new session-wide permissions. Native proposals too large to display completely are denied for local review. Runtime/schema compatibility still needs testing with your installed Codex version.
+The runner creates a **new** App Server thread with `untrusted` approval policy and `workspace-write` sandbox. It relays supported command/file approvals, non-secret structured questions, and completion notifications. It does not grant session-wide permission; oversized proposals are denied for local review. Validate against your installed Codex version before relying on it.
 
-It cannot keep a dead Codex process alive, recover a lost native approval after restart, or attach to an unrelated existing terminal. The Docker image contains the messaging bridge, **not Codex**; run the adapter on the host with an authenticated local installation.
+It cannot attach to an unrelated terminal, keep a dead process alive, or recover a lost native approval after restart. The Docker image contains the bridge, not an authenticated Codex installation.
 
-## Install the skill
+## WeChat / Weixin: experimental
 
-```sh
-mkdir -p ~/.agents/skills
-cp -R skills/donerelay ~/.agents/skills/
-```
+The main-branch adapter uses the published [Tencent Weixin client protocol](https://github.com/Tencent/openclaw-weixin/blob/main/docs/protocol.md). This is personal Weixin, not WeCom and not a notification-only webhook. Configure your own `WEIXIN_BOT_TOKEN` and `WEIXIN_USER_ID` locally after authorized setup. This preview does not include a QR-login wizard or read another application's credential files.
 
-The folder includes `SKILL.md`, a standalone Node client, and optional Codex metadata. Configure `DONERELAY_URL` and `DONERELAY_API_TOKEN` in the agent's environment. The skill does not start the service and does not override native security gates. Claude Code can load it through the included self-hosted plugin catalog; see [distribution instructions](docs/DISTRIBUTION.md).
+Send a private message from the bound account to establish conversation context. Do not run competing consumers for the same credentials. Telegram and Weixin resolve the same request: the first valid decision wins. Account eligibility, idle-session delivery, and expiry behavior need live tests. See [Weixin setup](docs/WEIXIN.md).
 
-## WeChat / Weixin (experimental)
+## HTTP API and CLI for other agents
 
-The text adapter uses the published [Tencent Weixin client protocol](https://github.com/Tencent/openclaw-weixin/blob/main/docs/protocol.md), not WeCom and not a notification-only webhook. Configure `WEIXIN_BOT_TOKEN` and `WEIXIN_USER_ID` locally after an authorized login. Obtain them from your own official plugin setup; this version does **not** include a QR-login wizard or automatically read another application's credential files.
+All endpoints except `/healthz` require `Authorization: Bearer <DONERELAY_API_TOKEN>`.
 
-Start the service and send a private message from the bound account to establish conversation context. Both channels can be enabled; they then share the same request and the first valid decision wins. Do not run two consumers against the same bot credentials. See [Weixin setup and limitations](docs/WEIXIN.md).
-
-**Account eligibility, context validity after hours of inactivity, session expiry, and actual backend compatibility must be live-tested.** Failed delivery is recorded explicitly. With no successful channel delivery, no approval is inferred; pending requests eventually expire. There is no silent fail-open or promise of reliable unsolicited messages.
-
-## HTTP / CLI for any agent
-
-The local API requires `Authorization: Bearer <DONERELAY_API_TOKEN>` except `/healthz`.
-
-| Method | Path | Action |
+| Method | Path | Purpose |
 | --- | --- | --- |
-| POST | `/v1/requests` | Create notification, question, or approval |
-| GET | `/v1/requests/:id` | Read state / answer |
+| POST | `/v1/requests` | Create a notification, question, or approval |
+| GET | `/v1/requests/:id` | Read status and answer |
 | POST | `/v1/requests/:id/cancel` | Cancel a pending request |
 
-There is deliberately no HTTP endpoint that accepts a claimed human approval. Decisions enter through authenticated channel adapters.
+There is deliberately **no HTTP endpoint that accepts a claimed human approval**. Decisions come from bound channel users.
 
 ```sh
 printf '%s' '{"kind":"question","task":"storage-choice","message":"SQLite or PostgreSQL?","ttlSeconds":300}' \
   | node --env-file=.env src/cli.js request --wait
 ```
 
-Inspect `status` and the original request ID, not just an exit code. `answered` is not `approved`. Optional `idempotencyKey` deduplicates creation during the seven-day retention window; it does not make downstream actions exactly-once.
+Check the request ID, proposal, and status. `answered` is not `approved`. An optional `idempotencyKey` deduplicates creation within the seven-day retention window; downstream actions are not guaranteed exactly-once.
 
-## VPS / Docker
+## VPS and Docker
 
 ```sh
 docker compose up --build -d
 ```
 
-The host port binds to `127.0.0.1:8787`; both channels receive replies using outbound polling. No public callback is needed. The container has a persistent state volume and runs without root. Docker assets are provided but have not been live-deployed in this preview.
+The host port binds to `127.0.0.1:8787`. Channel replies use outbound polling, so no public inbound messaging callback is needed. Docker assets include a non-root service and persistent volume but have not been live-deployed in this preview. A remote agent still needs an authenticated, reachable bridge; localhost on a laptop is not reachable from a cloud sandbox.
 
 ## Safety and failure behavior
 
-Only a configured private-chat user is accepted. Every request has its own random ID, complete proposal, content hash, and expiry. The first valid response wins across channels. Pending requests are cancelled after a service restart; existing decisions are not automatically executed. State is local plaintext with private file permissions and seven-day completed-request retention. Same-user host compromise is outside this isolation model.
+Requests carry a random ID, complete proposal, content hash, and expiry. Only the configured private user can resolve one. Timeout, failed delivery, an unknown sender, or no reply never means approval. Native host permissions remain in force.
 
-One process owns each state file. After an unclean crash, a stale `.lock` intentionally prevents startup. Verify the old process is stopped before removing that lock. Never delete a live process's lock. Review [SECURITY.md](SECURITY.md) before granting any sensitive operation.
+**Main-branch behavior:** pending requests are cancelled after restart. Existing decisions are not automatically executed. Local state is plaintext with private file permissions and seven-day completed-request retention. One process owns a state file. After a crash, a stale `.lock` intentionally blocks startup; verify the old process has stopped before removing it. Same-user host compromise is outside this isolation model.
 
-## Roadmap and contributions
+Read [SECURITY.md](SECURITY.md), [privacy and data flow](PRIVACY.md), and [FAQ](docs/FAQ.md) before sensitive use.
 
-Next release gates: live Telegram acceptance; Weixin login wizard and idle-session tests; real Codex-version compatibility; more native agent adapters; then directory submissions and releases. Marketplace manifests are distribution assets, not official marketplace acceptance. No npm publication, stable release, or Codex Cloud support is claimed.
+## Distribution, roadmap, and contributions
 
-Issues, tests, and small pull requests are welcome. If this is useful, a GitHub star helps others discover it. No tracking, paid API, or cloud service is required by DoneRelay itself; messaging and model providers have their own terms and costs.
+[Marketplace research](docs/MARKETPLACES.md) explains current OpenAI submission and Claude community-versus-official routes. [Submission materials](docs/SUBMISSION.md) contain draft listing copy, reviewer scenarios, and release gates. Local catalogs do not confer approval or endorsement.
 
-[MIT license](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md).
+Next gates: real Telegram acceptance, Weixin login/idle-session validation, native Codex compatibility, clean-host plugin installation, and owner-reviewed publication. There is no published npm install command to advertise yet.
+
+Issues, reproducible tests, and small pull requests are welcome. A star helps people bookmark the project; the more useful contribution is reporting a tested host version or a reproducible setup problem. No manufactured installs, stars, or ranking claims.
+
+[MIT license](LICENSE) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)

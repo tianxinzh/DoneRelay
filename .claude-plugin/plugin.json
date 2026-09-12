@@ -1,9 +1,27 @@
 {
   "name": "donerelay",
-  "version": "0.1.0-alpha.1",
-  "description": "Telegram and experimental WeChat task notifications and explicit human confirmations via a self-hosted DoneRelay bridge.",
-  "author": { "name": "DoneRelay contributors" },
+  "displayName": "DoneRelay",
+  "version": "0.1.0-alpha.2",
+  "description": "Telegram notifications, remote approvals, and human answers for Codex, Claude Code, and AI agents. Self-hosted Node.js; experimental WeChat support.",
+  "author": {
+    "name": "DoneRelay contributors",
+    "url": "https://github.com/tianxinzh/DoneRelay"
+  },
   "homepage": "https://github.com/tianxinzh/DoneRelay",
   "repository": "https://github.com/tianxinzh/DoneRelay",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "agent-skills",
+    "ai-agents",
+    "telegram",
+    "telegram-bot",
+    "wechat",
+    "weixin",
+    "human-in-the-loop",
+    "remote-approvals",
+    "notifications",
+    "nodejs"
+  ]
 }

@@ -1,54 +1,25 @@
-# Distribution and discovery
+# DoneRelay distribution and discovery
 
-Status checked 2026-09-12. These are installation assets and release steps, not claims of completed submission or approval.
+Updated 2026-09-12. Source version `0.1.0-alpha.2`. No official submission, listing, npm publication, or Cloud compatibility is claimed.
 
-## Agent Skills / Codex local installation
+## Install now from source
 
-`skills/donerelay/SKILL.md` follows the portable name/description format and includes a standalone client. Copy that folder to `~/.agents/skills/` or the target project's `.agents/skills/`. A running bridge and separately configured environment are still required.
+Follow [Codex and Claude Code installation](INSTALLATION.md). Both paths require a separately configured DoneRelay bridge; installing a skill does not start it.
 
-References:
-- https://agentskills.io/specification
-- https://developers.openai.com/codex/skills/
+- Codex local: copy `skills/donerelay` to `~/.agents/skills/` or the target project's `.agents/skills/`.
+- Claude Code own catalog: `/plugin marketplace add tianxinzh/DoneRelay`, then `/plugin install donerelay@donerelay-plugins`.
+- OpenAI local plugin assets: root `plugin.json` plus `.agents/plugins/marketplace.json`, subject to installed-host validation.
 
-## skills.sh ecosystem
+## Directory publication
 
-The documented CLI installs skills from GitHub repositories. After reviewing the source, users can try:
+[Marketplace research](MARKETPLACES.md) documents the current primary-source routes and limitations. [Submission packet](SUBMISSION.md) provides draft listing text, eight reviewer scenarios, and release gates. Do not substitute a pull request to deprecated `openai/skills` for the current plugin submission flow. Claude community submission does not request official curated placement.
 
-```sh
-npx skills add tianxinzh/DoneRelay
-```
+## Other distribution
 
-The leaderboard is informed by installation telemetry; a GitHub commit is not a guarantee of a listing or ranking. This command installs a skill, not a running relay or native approval adapter. We have not submitted or confirmed a listing.
+The third-party [skills.sh documentation](https://skills.sh/docs) describes GitHub-based skill installation. No skills.sh listing or install telemetry is claimed for DoneRelay. Do not manufacture installs or imply that such a directory is the official OpenAI/Anthropic marketplace.
 
-Reference: https://skills.sh/docs
+No npm package has been published or verified here; do not advertise `npx donerelay` yet. Package metadata is a preparation asset, not a registry reservation.
 
-## Claude Code self-hosted plugin catalog
+## Discoverability
 
-The repository contains `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`. In Claude Code:
-
-```text
-/plugin marketplace add tianxinzh/DoneRelay
-/plugin install donerelay@donerelay-plugins
-```
-
-This distributes the skill from our own catalog. It does not mean Anthropic has accepted it into an official directory, and does not implement native Claude Code permission relay. Validate with the locally installed Claude Code CLI before release:
-
-```sh
-claude plugin validate .
-```
-
-References:
-- https://code.claude.com/docs/en/plugin-marketplaces
-- https://code.claude.com/docs/en/plugins-reference
-
-## Official directories and hosted agents
-
-Official OpenAI/Anthropic review and publication are separate workflows. Codex local skills, public plugin directories, and Codex Cloud are not interchangeable surfaces. Do not claim Cloud compatibility before confirming execution lifetime, network access, secrets handling, and the ability to return to the same pending task. We have not submitted to an official directory.
-
-## Honest SEO / GEO release checklist
-
-Use the brand `DoneRelay`, an informative title, a short statement of the actual use case, practical examples, and explicit compatibility/maturity labels. Suggested repository topics: `ai-agents`, `codex`, `agent-skills`, `telegram-bot`, `wechat`, `weixin`, `human-in-the-loop`, `notifications`, `nodejs`. These are suggestions, not metadata already applied by this commit.
-
-Record an actual end-to-end demo only after live validation. Avoid fabricated screenshots, competitor claims, ranking promises, artificial install telemetry, mass promotional issues, or manufactured stars. Documentation examples are explicitly illustrative. Publish reproducible test results, troubleshooting answers, and a changelog that other people and search systems can reference.
-
-npm publication, a release tag, a website, GitHub topics/description changes, a real demo, directory acceptance, and third-party submissions remain release tasks. Do not advertise `npx donerelay` as an available npm install until the package has actually been published and ownership verified.
+[SEO and GEO plan](SEO.md) records the positioning, intent map, suggested GitHub About/topics, and an evidence-led launch sequence. The root `llms.txt` is a factual navigation aid, not a search-ranking guarantee.

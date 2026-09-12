@@ -1,37 +1,67 @@
-# DoneRelay — AI Agent 的远程确认与任务通知
+# DoneRelay — Codex、Claude Code 的 Telegram 通知与远程审批
 
 **离开键盘，也能回答 Agent 的问题。**
 
-DoneRelay 是自托管 Node.js 桥接服务：通过 Telegram，以及实验性的个人微信 / Weixin 接口，接收任务通知、批准或拒绝具体操作、回答澄清问题。配有可移植 Skill 和实验性 Codex App Server 适配器。
+DoneRelay 是开源、自托管的 Node.js 桥接服务和 Agent Skill：通过 Telegram 接收完成通知、回答澄清问题、批准或拒绝一个明确操作。支持 Codex、Claude Code 的 Skill 工作流和通用 HTTP/CLI。**个人微信 / Weixin 为实验性支持。**
 
-[English / 完整说明](README.md) · [实施计划](docs/PLAN.md) · [安全边界](SECURITY.md)
+[English / 完整说明](README.md) · [安装](docs/INSTALLATION.md) · [常见问题](docs/FAQ.md) · [市场上架调研](docs/MARKETPLACES.md) · [安全边界](SECURITY.md)
 
 ## 当前状态
 
-这是 `0.1.0-alpha.1` 源码预览。离线测试覆盖请求状态、身份校验、重复与过期审批、消息接口格式，以及模拟的 Codex 暂停/继续流程。**尚未用真实 Telegram、微信账号或已认证 Codex 完成联调**，不是上述平台的官方产品。
+`0.1.0-alpha.2` 是源码预览；本次更新改善文档和插件包装，不代表消息渠道成熟度升级。**尚未完成真实 Telegram、微信和已认证 Agent 的端到端验收。** 未上架官方目录、未发布 npm，不承诺 Codex Cloud 可用，也不是相关平台的官方产品。
+
+工作流：Agent 提出具体问题 → 发到绑定的私聊账号 → 你回复 → 仍在运行的调用方读取结果并继续检查原生权限。Skill 不会自动接管任意终端，不能复活已终止的任务。
 
 ## 基本用法
 
-需要 Node.js 22+。克隆仓库，执行 `npm ci --ignore-scripts` 与 `npm test`。复制 `.env.example` 为本地 `.env`，生成随机 API token 并填写 Telegram bot token、个人 chat ID、user ID，然后执行 `npm start`。另一个终端执行 `npm run demo`。
+需要 Node.js 22+。克隆仓库后：
 
-手机收到问题后回复：`回答 请求编号 SQLite`。审批回复 `批准 请求编号` 或 `拒绝 请求编号`；Telegram 也支持按钮。含糊的“好”不会被当成授权。两个渠道共用请求记录，在任意一边处理后，另一边不能重复生效。
+```sh
+npm ci --ignore-scripts
+npm test
+npm run check:discovery
+cp .env.example .env
+chmod 600 .env
+```
 
-## Codex 和其他 Agent
+本地生成随机 `DONERELAY_API_TOKEN`；配置 Telegram bot token、个人 chat ID 和 user ID。先私聊机器人，再启动 `npm start`。另一个终端运行 `npm run demo`，收到问题后回复 `回答 请求编号 SQLite`。
 
-桥接服务运行时，执行：
+审批使用 `批准 请求编号`、`拒绝 请求编号` 或 Telegram 按钮；含糊的“好”不是授权。两个渠道共用请求，先到的有效回复生效。凭证应放在 Agent 工作目录之外，最好让桥接服务使用单独系统用户；不要把 token 放进聊天、issue 或 Git。
+
+## 安装 Skill
+
+在仓库根目录为本地 Codex 安装：
+
+```sh
+mkdir -p ~/.agents/skills
+cp -R skills/donerelay ~/.agents/skills/
+```
+
+在 Agent 的安全环境配置中设置 `DONERELAY_URL` 和 `DONERELAY_API_TOKEN`，然后显式使用 `$donerelay`。
+
+Claude Code 使用本项目自托管目录：
+
+```text
+/plugin marketplace add tianxinzh/DoneRelay
+/plugin install donerelay@donerelay-plugins
+```
+
+再调用 `/donerelay:donerelay`。**安装插件不会启动桥接服务或自动配置机器人。** 这是 Skill，不是 Claude 原生 Channels 或权限拦截插件。
+
+## 原生 Codex 和微信边界
+
+实验性 Codex App Server runner 创建并管理自己的新会话：
 
 ```sh
 node --env-file=.env src/cli.js codex --cwd /你的项目绝对路径 --prompt "检查项目并运行测试"
 ```
 
-适配器启动并管理自己的 Codex App Server 会话，不接管任意现有终端，不承诺 Codex Cloud 可用。只转发支持的单次审批、非敏感结构化问题和完成通知。Skill 用于其他支持宿主，不绕过其原生审批或沙箱。
+它只转发已支持的单次审批、非敏感问题和完成通知，不绕过沙箱，不提供会话级无限授权。需实测你的 Codex 版本。
 
-## 微信限制
+微信使用腾讯公开客户端协议。需要单独授权设置 `WEIXIN_BOT_TOKEN` 与 `WEIXIN_USER_ID`，先私聊建立上下文。没有扫码登录向导，也不会读取其他应用的凭证。长时间不互动后的发送、账号资格和会话过期必须实测。详见 [微信说明](docs/WEIXIN.md)。
 
-已实现实验性文本收发与轮询代码，需要你通过授权登录获得自己的 `WEIXIN_BOT_TOKEN` 与 `WEIXIN_USER_ID` 并在本地配置。**本版没有二维码登录向导，也不会读取其他应用的凭证文件。** 先给机器人发私聊消息，建立会话上下文。长时间没有互动后的主动发送、账号资格和会话过期行为必须实测。详见 [微信说明](docs/WEIXIN.md)。
+## 默认拒绝与发布状态
 
-## 安全与发布
+无回复、超时、发送失败都不代表批准；回答问题不是授权执行。主分支在服务重启后取消待确认请求。Docker 只提供桥接服务，不提供已认证 Codex。
 
-默认监听本机；绑定具体用户；请求单次生效；超时不默认批准；服务重启取消待确认请求。实际使用应将 bot 凭证移出 Agent 工作目录，最好让服务运行在不同系统用户下。不要把任何 token 粘贴进 issue 或提交到 Git。
-
-仓库提供 Docker、测试、Skill 和自托管插件目录文件；这些不等于已经上架官方市场、发布 npm、部署到 VPS 或通过端到端验证。
+[上架调研](docs/MARKETPLACES.md) 区分 OpenAI 的公共插件提交、Claude 的社区目录与单独策展的官方目录。[提交材料](docs/SUBMISSION.md) 已准备草稿和验收用例，但未提交审核。GitHub star、SEO 排名和 AI 引用都没有保证。

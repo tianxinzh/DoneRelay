@@ -1,0 +1,18 @@
+# DoneRelay
+
+> Open-source, self-hosted Node.js bridge and agent skill for Telegram task notifications, bounded questions, and single-operation human approvals. Personal WeChat / Weixin is experimental.
+
+Status: alpha source preview. Requires a separately running bridge and locally configured credentials. Live account and installed-host acceptance remain pending. No official directory listing, hosted service, npm publication, or Codex Cloud compatibility is claimed. This optional index is not a search-ranking mechanism.
+
+## Documentation
+
+- [Overview and setup](https://github.com/tianxinzh/DoneRelay/blob/main/README.md): prerequisites, architecture, scope, API and safety.
+- [Chinese overview](https://github.com/tianxinzh/DoneRelay/blob/main/README.zh-CN.md): 中文设置与限制。
+- [Codex and Claude installation](https://github.com/tianxinzh/DoneRelay/blob/main/docs/INSTALLATION.md): skill and own-catalog installation; native integration boundaries.
+- [FAQ](https://github.com/tianxinzh/DoneRelay/blob/main/docs/FAQ.md): phone replies, Cloud limits, data flow, and project status.
+- [Portable skill](https://github.com/tianxinzh/DoneRelay/blob/main/skills/donerelay/SKILL.md): explicit user-authorized usage.
+- [Weixin setup](https://github.com/tianxinzh/DoneRelay/blob/main/docs/WEIXIN.md): experimental personal-WeChat transport.
+- [Security](https://github.com/tianxinzh/DoneRelay/blob/main/SECURITY.md): trust boundaries and failure behavior.
+- [Privacy](https://github.com/tianxinzh/DoneRelay/blob/main/PRIVACY.md): self-hosted data flow.
+- [Marketplace research](https://github.com/tianxinzh/DoneRelay/blob/main/docs/MARKETPLACES.md): dated official sources; packaging is not admission.
+- [Submission status](https://github.com/tianxinzh/DoneRelay/blob/main/docs/SUBMISSION.md): draft materials and unresolved release gates.

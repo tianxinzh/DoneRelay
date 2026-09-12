@@ -1,0 +1,50 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "donerelay",
+  "version": "0.1.0-alpha.2",
+  "description": "Telegram notifications, remote approvals, and human answers for Codex, Claude Code, and AI agents. Self-hosted Node.js; experimental WeChat support.",
+  "author": {
+    "name": "DoneRelay contributors",
+    "url": "https://github.com/tianxinzh/DoneRelay"
+  },
+  "homepage": "https://github.com/tianxinzh/DoneRelay",
+  "repository": "https://github.com/tianxinzh/DoneRelay",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "agent-skills",
+    "ai-agents",
+    "telegram",
+    "telegram-bot",
+    "wechat",
+    "weixin",
+    "human-in-the-loop",
+    "remote-approvals",
+    "notifications",
+    "nodejs"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "DoneRelay",
+        "shortDescription": "Telegram updates and remote human approvals for AI agents",
+        "longDescription": "Send task notifications, ask bounded questions, and request explicit approval for one operation through a separately configured DoneRelay bridge. Includes a portable agent skill. Requires Node.js 22+, a reachable bridge, and locally configured credentials. WeChat transport is experimental. Does not bypass native agent permissions or guarantee Codex Cloud session continuity.",
+        "developerName": "DoneRelay contributors",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://github.com/tianxinzh/DoneRelay",
+        "privacyPolicyURL": "https://github.com/tianxinzh/DoneRelay/blob/main/PRIVACY.md",
+        "termsOfServiceURL": "https://github.com/tianxinzh/DoneRelay/blob/main/TERMS.md",
+        "defaultPrompt": [
+          "Use $donerelay to send me a concise Telegram notification when this task finishes.",
+          "Use $donerelay to ask whether staging is the correct deployment target; wait for my answer.",
+          "Use $donerelay to request approval for this exact operation. Keep native permission checks in place."
+        ]
+      }
+    }
+  }
+}
