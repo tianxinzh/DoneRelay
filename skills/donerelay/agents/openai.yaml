@@ -1,0 +1,6 @@
+interface:
+  display_name: "DoneRelay"
+  short_description: "Remote questions, approvals, and task notifications"
+  default_prompt: "Use $donerelay to notify me and ask for input through my configured messaging channels."
+policy:
+  allow_implicit_invocation: false

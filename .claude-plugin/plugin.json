@@ -1,0 +1,10 @@
+{
+  "name": "donerelay",
+  "description": "Ask the human, request one-time approvals, and send task notifications through a locally configured DoneRelay service.",
+  "version": "0.1.0",
+  "author": {"name": "tianxinzh"},
+  "homepage": "https://github.com/tianxinzh/DoneRelay",
+  "repository": "https://github.com/tianxinzh/DoneRelay",
+  "license": "MIT",
+  "keywords": ["telegram", "wechat", "weixin", "approvals", "notifications", "human-in-the-loop"]
+}

@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.donerelay/
+data/
+*.sqlite*
+*.lock
+!package-lock.json
+weixin-account.json
+coverage/
+*.tgz
+.DS_Store

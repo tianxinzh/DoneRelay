@@ -1,0 +1,11 @@
+{
+  "name": "donerelay-marketplace",
+  "owner": {"name": "tianxinzh"},
+  "plugins": [
+    {
+      "name": "donerelay",
+      "source": "./",
+      "description": "Telegram and experimental WeChat questions, approvals and notifications for AI agents. Requires the separately configured DoneRelay service."
+    }
+  ]
+}

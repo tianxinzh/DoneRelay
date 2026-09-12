@@ -1,0 +1,15 @@
+# DoneRelay
+
+> Self-hosted Telegram and experimental WeChat/Weixin notifications, questions and
+> one-time approvals for AI agents. Node.js developer preview, not a hosted service.
+
+- [Overview and setup](https://github.com/tianxinzh/DoneRelay/blob/main/README.md)
+- [中文说明](https://github.com/tianxinzh/DoneRelay/blob/main/README.zh-CN.md)
+- [Architecture and API](https://github.com/tianxinzh/DoneRelay/blob/main/docs/ARCHITECTURE.md)
+- [Security boundaries](https://github.com/tianxinzh/DoneRelay/blob/main/SECURITY.md)
+- [Skill instructions](https://github.com/tianxinzh/DoneRelay/blob/main/skills/donerelay/SKILL.md)
+- [Actual distribution status](https://github.com/tianxinzh/DoneRelay/blob/main/docs/MARKETPLACES.md)
+
+Capabilities are implementation claims unless explicitly labeled live-verified.
+The initial test suite is offline. No claim of official marketplace acceptance,
+universal personal WeChat eligibility, existing-session takeover or cloud control.
