@@ -1,0 +1,6 @@
+interface:
+  display_name: "DoneRelay"
+  short_description: "Telegram questions and approvals for unattended agents"
+  default_prompt: "Use $donerelay to notify me or request a scoped decision through my configured bridge."
+policy:
+  allow_implicit_invocation: false

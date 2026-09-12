@@ -1,0 +1,21 @@
+{
+  "name": "donerelay",
+  "version": "0.1.0",
+  "description": "Telegram notifications, questions and single-operation approvals for AI agents; experimental WeChat support.",
+  "author": {
+    "name": "tianxinzh"
+  },
+  "homepage": "https://github.com/tianxinzh/DoneRelay",
+  "repository": "https://github.com/tianxinzh/DoneRelay",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "agent-skills",
+    "telegram",
+    "wechat",
+    "weixin",
+    "human-in-the-loop",
+    "approvals"
+  ]
+}

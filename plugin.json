@@ -1,0 +1,44 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "donerelay",
+  "version": "0.1.0",
+  "description": "Telegram notifications, questions and single-operation approvals for AI agents; experimental WeChat support.",
+  "author": {
+    "name": "tianxinzh"
+  },
+  "homepage": "https://github.com/tianxinzh/DoneRelay",
+  "repository": "https://github.com/tianxinzh/DoneRelay",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "agent-skills",
+    "telegram",
+    "wechat",
+    "weixin",
+    "human-in-the-loop",
+    "approvals"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "DoneRelay",
+        "shortDescription": "Keep agent decisions moving from your phone",
+        "longDescription": "Telegram notifications, questions and single-operation approvals for AI agents; experimental WeChat support. A self-hosted bridge is required.",
+        "developerName": "tianxinzh",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://github.com/tianxinzh/DoneRelay",
+        "privacyPolicyURL": "https://github.com/tianxinzh/DoneRelay/blob/main/PRIVACY.md",
+        "termsOfServiceURL": "https://github.com/tianxinzh/DoneRelay/blob/main/TERMS.md",
+        "defaultPrompt": [
+          "Use DoneRelay to ask me before deploying the reviewed build.",
+          "Notify me through DoneRelay when the current task finishes."
+        ]
+      }
+    }
+  }
+}

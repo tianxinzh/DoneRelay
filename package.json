@@ -1,0 +1,60 @@
+{
+  "name": "donerelay",
+  "version": "0.1.0",
+  "description": "Human-in-the-loop Telegram and WeChat notifications, questions and approvals for coding agents.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "bin": {
+    "donerelay": "bin/donerelay.mjs"
+  },
+  "exports": {
+    "./client": "./skills/donerelay/scripts/client.mjs"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "demo": "node examples/offline-demo.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "skills/",
+    "integrations/",
+    "plugin.json",
+    ".claude-plugin/",
+    ".agents/plugins/",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "SECURITY.md",
+    "PRIVACY.md",
+    "TERMS.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    "docs/"
+  ],
+  "keywords": [
+    "codex",
+    "claude-code",
+    "agent-skills",
+    "telegram",
+    "wechat",
+    "weixin",
+    "human-in-the-loop",
+    "approvals",
+    "notifications"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tianxinzh/DoneRelay.git"
+  },
+  "homepage": "https://github.com/tianxinzh/DoneRelay",
+  "bugs": {
+    "url": "https://github.com/tianxinzh/DoneRelay/issues"
+  },
+  "author": "DoneRelay contributors",
+  "license": "MIT"
+}

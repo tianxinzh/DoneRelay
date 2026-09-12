@@ -1,0 +1,13 @@
+{
+  "name": "donerelay",
+  "owner": {
+    "name": "tianxinzh"
+  },
+  "plugins": [
+    {
+      "name": "donerelay",
+      "source": "./",
+      "description": "Telegram notifications, questions and single-operation approvals for AI agents; experimental WeChat support."
+    }
+  ]
+}

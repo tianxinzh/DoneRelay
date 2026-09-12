@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.sqlite*
+data/
+coverage/
+*.tgz
+.DS_Store

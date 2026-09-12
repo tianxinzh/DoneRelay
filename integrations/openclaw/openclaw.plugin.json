@@ -1,0 +1,31 @@
+{
+  "id": "donerelay-wechat",
+  "name": "DoneRelay WeChat",
+  "description": "Bound-user approval and question replies. Requires Tencent Weixin channel. Experimental.",
+  "categories": [
+    "developer-tools"
+  ],
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "senderId"
+    ],
+    "properties": {
+      "url": {
+        "type": "string",
+        "default": "http://127.0.0.1:8787"
+      },
+      "senderId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "accountId": {
+        "type": "string"
+      }
+    }
+  }
+}

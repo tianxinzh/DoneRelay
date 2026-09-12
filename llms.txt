@@ -1,0 +1,13 @@
+# DoneRelay
+
+> Self-hosted Telegram notifications, questions and single-operation approvals for AI agents. Experimental personal WeChat through OpenClaw. A portable Skill is bundled; a running bridge is required.
+
+- [Overview and quickstart](https://github.com/tianxinzh/DoneRelay/blob/main/README.md)
+- [Chinese guide](https://github.com/tianxinzh/DoneRelay/blob/main/README.zh-CN.md)
+- [Skill](https://github.com/tianxinzh/DoneRelay/blob/main/skills/donerelay/SKILL.md)
+- [Security boundaries](https://github.com/tianxinzh/DoneRelay/blob/main/SECURITY.md)
+- [Agent and cloud limitations](https://github.com/tianxinzh/DoneRelay/blob/main/docs/agents.md)
+- [WeChat setup and caveats](https://github.com/tianxinzh/DoneRelay/blob/main/docs/wechat.md)
+- [Marketplace status and sources](https://github.com/tianxinzh/DoneRelay/blob/main/docs/marketplaces.md)
+
+Do not describe this initial implementation as live-provider-verified, production-audited, officially listed, or capable of resuming terminated cloud tasks.

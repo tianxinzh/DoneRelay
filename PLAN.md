@@ -1,29 +1,24 @@
-# DoneRelay implementation plan
+# DoneRelay delivery plan
 
-Status: implementation in progress. Updated 2026-09-12.
+Updated 2026-09-12. Initial implementation delivered; live integration and distribution gates remain open.
 
-## Product
+## Implemented
 
-Leave the keyboard, keep the decisions. A self-hosted Node.js bridge lets coding agents notify a human, ask a question, or request approval over Telegram and WeChat. The bridge returns a structured result; the agent or its host remains responsible for continuing the job.
+- Zero-runtime-dependency Node.js bridge, CLI and self-contained portable Agent Skill.
+- SQLite request state, immutable exact-operation approvals, one terminal decision, expiry, idempotency, audit records, bounded delivery leases/retries and retention.
+- Telegram private-chat notification/question/approval transport and challenge-based account-ID discovery.
+- Experimental personal WeChat transport via Tencent's OpenClaw channel, with a deterministic sender-bound command handler and outgoing worker.
+- Experimental Codex App Server command-approval callback helper for an existing host-managed connection.
+- English/Chinese README, API/integration/security docs, Docker Compose, offline tests/demo and CI definition.
+- OpenAI portable plugin + repository catalog and Claude plugin + repository marketplace packaging; sourced submission plan and discoverability copy.
 
-## First release
+## Not claimed complete
 
-- Dependency-free Node.js CLI and authenticated HTTP service, with durable SQLite requests and delivery queue.
-- Telegram private-chat notifications, approval buttons, free-text answers, allowlisted chat/user IDs, long polling, bounded retry, and restart recovery.
-- Experimental personal WeChat transport through Tencent's OpenClaw Weixin channel plugin. A deterministic DoneRelay OpenClaw command handles responses; no LLM interprets authorization.
-- Portable Agent Skill, Claude Code plugin/marketplace packaging, and OpenAI plugin packaging. A skill is not a replacement for a running bridge or a native host permission prompt.
-- A cooperative agent workflow and a narrowly scoped Codex App Server integration, with unsupported permission requests denied rather than silently authorized.
-- Single-use, expiring, operation-bound approvals. Separate agent and WeChat transport credentials. No public unauthenticated webhook, arbitrary shell execution, automatic approval, or session-wide permission grant.
-- Docker Compose, English/Chinese documentation, offline tests, security guidance, and a distribution/submission checklist with official sources.
+- Live Telegram/WeChat account tests, host-native SDK/installer validation and Docker execution.
+- General native approval interception, arbitrary remote control or indefinite Codex Cloud job resumption.
+- Public npm release, ClawHub publication, skills.sh indexing, official OpenAI/Anthropic review or listing.
+- A production security audit, multi-tenant isolation, or exactly-once remote operation execution.
 
-## Validation
+## Next release gates
 
-Run automated state, authorization, Telegram protocol, HTTP API, CLI, and integration tests using mock transports. Live messaging requires user-owned bot/channel credentials and is a separate release gate. Do not claim live verification or official marketplace publication without evidence.
-
-## Distribution
-
-Ship installable repository packages first. Prepare OpenAI and Anthropic submission materials. Public review, identity verification, authenticated submission forms, and third-party acceptance cannot be replaced by adding a manifest. skills.sh discovery must be distinguished from successful GitHub installation. Do not manufacture installs, stars, or testimonials.
-
-## Scope boundaries
-
-One trusted operator per bridge. Keep the bridge and its channel credentials outside an untrusted agent sandbox. Cloud task lifetime and network/secret policies remain host constraints. A surviving bridge can retain a response, but cannot resurrect an expired cloud execution.
+Follow docs/release-checklist.md. First verify Telegram with a dedicated bot, then the experimental WeChat adapter on recorded compatible versions. Publish reviewed immutable release artifacts before broad promotion. Prepare but do not fabricate publisher identity, credentials, reviews, stars, installs or test screenshots.
