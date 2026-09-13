@@ -1,12 +1,28 @@
-# DoneRelay FAQ: Telegram, Codex, Claude Code, and WeChat
+# DoneRelay FAQ: Telegram, WhatsApp, Codex, Claude Code, and WeChat
 
 ## What is DoneRelay?
 
-An MIT-licensed Node.js bridge and portable agent skill for completion notifications, bounded questions, and explicit operation approvals. Telegram is the primary transport; personal WeChat is experimental. This is an alpha source preview, not a verified production or official marketplace product.
+An MIT-licensed Node.js bridge and portable agent skill for completion notifications, bounded questions, and explicit operation approvals. It includes Telegram, experimental WhatsApp Cloud API, and experimental personal WeChat transports. This is an alpha source preview, not a verified production or official marketplace product.
 
-## Can Codex notify me on Telegram?
+## Can Codex notify me on Telegram or WhatsApp?
 
-The supplied skill client can request a notification from a separately configured DoneRelay bridge. The experimental native runner can report a task it starts itself. The bridge, agent process, bot configuration, and network connectivity must all be available. See [installation](INSTALLATION.md).
+The supplied skill client can request a notification from a separately configured DoneRelay bridge. The experimental native runner can report a task it starts itself. The bridge, agent process, channel configuration, and network connectivity must all be available. WhatsApp also needs opt-in and an active reply window. See [installation](INSTALLATION.md) and [WhatsApp setup](WHATSAPP.md).
+
+## Does WhatsApp require a business account or a personal QR login?
+
+The sending side uses Meta's WhatsApp Business Platform Cloud API with an app, WhatsApp Business Account, and sending number. You receive and reply from your bound personal recipient. DoneRelay does not implement WhatsApp Web scraping or personal-account QR login. Provider account eligibility and production setup must be completed separately.
+
+## Can WhatsApp reach me after a long period away?
+
+Free-form messages require an active 24-hour customer-service window measured from the recipient's last message. Outside it, approved templates are required by Meta. This version has no template fallback and reports `whatsapp_window_closed`, rather than claiming delivery. A new inbound message reopens the window when consent is already active. Failed requests are not automatically resent; cancel a pending failed request and create a fresh one. Telegram can remain enabled alongside WhatsApp. See the policy references in [WhatsApp setup](WHATSAPP.md).
+
+## Do I need a public webhook?
+
+Telegram and Weixin use outbound polling. WhatsApp requires a public HTTPS callback routed only to the separate webhook listener on port 8788. The authenticated agent API stays on port 8787 and must not be exposed through that callback. SIGNED provider events are required; the setup verification token alone cannot authorize replies.
+
+## What do START and STOP do?
+
+From the bound WhatsApp recipient, START opts into that channel and STOP disables its sends and decisions. Other messages do not opt you back in after STOP. Telegram and Weixin are not disabled by a WhatsApp STOP. No chat acknowledgement is sent for every inbound message in this version; check the caller's stored result.
 
 ## Can I answer from my phone and let the task continue?
 
@@ -26,15 +42,19 @@ No. Main includes an experimental personal Weixin text adapter using the publish
 
 ## Does a plain “okay” authorize an action?
 
-No. Use the exact request ID and expected command or bound approval button. A question answered with text is not an approval. Wrong-user, expired, cancelled, duplicate, and missing responses do not authorize a new operation.
+No. Use the exact request ID and expected command or bound approval button. A question answered with text is not an approval. Wrong-user, expired, cancelled, duplicate, and missing responses do not authorize a new operation. WhatsApp delivery or read receipts do not authorize anything either.
 
-## What if both channels receive my response?
+## What if several channels receive my response?
 
-They share the request record; the first valid decision wins. Approval does not make downstream actions exactly-once. Callers must avoid replaying an operation, particularly after a process restart.
+Telegram, WhatsApp and Weixin share the request record; the first valid decision wins. Approval does not make downstream actions exactly-once. Callers must avoid replaying an operation, particularly after a process restart.
 
 ## What data leaves my computer?
 
 The requested notification/question/proposal and your reply pass through the selected messaging provider. The bridge stores request state locally. The agent receives the resulting request data. Do not send secrets or unnecessary sensitive content. See [privacy/data flow](../PRIVACY.md).
+
+## Is the README GIF a real account recording?
+
+No. It illustrates a concrete checkout-fix and staging-deployment scenario. Its commit, test count and deployment outcome are fictional scenario details, not claims about a live integration. A [static version](assets/donerelay-checkout-demo-poster.png) is available for reduced motion.
 
 ## Is it free, hosted, or available on npm?
 

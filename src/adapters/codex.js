@@ -27,10 +27,16 @@ export function questionInput(q, p) {
   return { kind: 'question', task: `Codex ${p.threadId} / ${p.turnId}`, message };
 }
 
+// Never forward bridge or messaging credentials into the model-controlled child.
+// Case-insensitive matching also covers case-insensitive host environments.
+export function agentEnvironment(env = process.env) {
+  return Object.fromEntries(Object.entries(env).filter(([key]) => !/^(TELEGRAM_|WEIXIN_|WHATSAPP_|DONERELAY_)/i.test(key)));
+}
+
 // Starts its OWN App Server connection. It does not attach to an arbitrary CLI session.
 export async function runCodex({ prompt, cwd = process.cwd(), client, command = 'codex', spawnImpl = spawn }) {
   check(typeof prompt === 'string' && prompt.trim(), 'A prompt is required');
-  const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !/^(TELEGRAM_|WEIXIN_|DONERELAY_)/.test(k)));
+  const env = agentEnvironment();
   const child = spawnImpl(command, ['app-server'], { cwd: path.resolve(cwd), env, stdio: ['pipe', 'pipe', 'inherit'] });
   const rpc = new Map(); const pending = new Map(); const items = new Map();
   let seq = 0; let ended = false; let threadId; let lastMessage = '';
