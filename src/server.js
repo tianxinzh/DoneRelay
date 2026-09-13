@@ -3,6 +3,7 @@ import { Store } from './store.js';
 import { Relay } from './relay.js';
 import { Telegram } from './channels/telegram.js';
 import { Weixin } from './channels/weixin.js';
+import { WhatsApp, makeWhatsAppWebhookServer } from './channels/whatsapp.js';
 import { check, RelayError, safeError, secretEqual } from './util.js';
 
 export function makeServer(relay, token) {
@@ -10,7 +11,7 @@ export function makeServer(relay, token) {
   const server = http.createServer(async (req, res) => {
     const send = (status, body) => { if (!res.destroyed) { res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }); res.end(JSON.stringify(body)); } };
     try {
-      if (req.method === 'GET' && req.url === '/healthz') return send(200, { ok: true, version: '0.1.0-alpha.1' });
+      if (req.method === 'GET' && req.url === '/healthz') return send(200, { ok: true, version: '0.1.0-alpha.2' });
       check(secretEqual(req.headers.authorization, `Bearer ${token}`), 'Unauthorized', 401);
       if (req.method === 'POST' && req.url === '/v1/requests') {
         check(req.headers['content-type']?.split(';')[0] === 'application/json', 'Content-Type must be application/json', 415);
@@ -28,10 +29,13 @@ export function makeServer(relay, token) {
   server.requestTimeout = 15000; server.headersTimeout = 10000;
   return server;
 }
+const closeServer = (server) => new Promise((resolve) => {
+  if (server?.listening) server.close(resolve); else resolve();
+});
 export async function serve(env = process.env) {
   const store = new Store(env.DONERELAY_STATE_FILE ?? './data/state.json');
   const controller = new AbortController();
-  let server; let timer; const polls = [];
+  let server; let webhook; let timer; const polls = [];
   try {
     const channels = {};
     if (env.TELEGRAM_BOT_TOKEN) channels.telegram = new Telegram({ token: env.TELEGRAM_BOT_TOKEN,
@@ -39,21 +43,38 @@ export async function serve(env = process.env) {
     if (env.WEIXIN_BOT_TOKEN) channels.weixin = new Weixin({ token: env.WEIXIN_BOT_TOKEN,
       userId: env.WEIXIN_USER_ID, contextToken: env.WEIXIN_CONTEXT_TOKEN,
       baseUrl: env.WEIXIN_BASE_URL || undefined, store });
+    if (env.WHATSAPP_ACCESS_TOKEN) channels.whatsapp = new WhatsApp({ token: env.WHATSAPP_ACCESS_TOKEN,
+      phoneNumberId: env.WHATSAPP_PHONE_NUMBER_ID, businessAccountId: env.WHATSAPP_BUSINESS_ACCOUNT_ID,
+      userId: env.WHATSAPP_USER_ID, appSecret: env.WHATSAPP_APP_SECRET,
+      verifyToken: env.WHATSAPP_VERIFY_TOKEN, graphVersion: env.WHATSAPP_GRAPH_VERSION, store });
     check(Object.keys(channels).length, 'Configure at least one channel in your local environment');
     const relay = new Relay(store, channels);
     server = makeServer(relay, env.DONERELAY_API_TOKEN);
     const port = Number(env.PORT ?? 8787);
     check(Number.isInteger(port) && port > 0 && port < 65536, 'Invalid PORT');
+    if (channels.whatsapp) {
+      const webhookPort = Number(env.WHATSAPP_WEBHOOK_PORT ?? 8788);
+      check(Number.isInteger(webhookPort) && webhookPort > 0 && webhookPort < 65536 && webhookPort !== port, 'WhatsApp webhook needs a valid separate port');
+      webhook = makeWhatsAppWebhookServer(channels.whatsapp);
+      await new Promise((resolve, reject) => { webhook.once('error', reject); webhook.listen(webhookPort, env.WHATSAPP_WEBHOOK_HOST ?? env.HOST ?? '127.0.0.1', resolve); });
+    }
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, env.HOST ?? '127.0.0.1', resolve); });
-    for (const channel of Object.values(channels)) { channel.relay = relay; polls.push(channel.poll(controller.signal).catch(() => { console.error('Channel stopped (details redacted).'); })); }
-    timer = setInterval(() => { try { store.sweep(); } catch { console.error('State write failed; stopping.'); controller.abort(); server.close(); } }, 1000);
-    console.log(`DoneRelay listening on ${env.HOST ?? '127.0.0.1'}:${port}; channels: ${Object.keys(channels).join(', ')}`);
+    for (const channel of Object.values(channels)) {
+      channel.relay = relay;
+      if (typeof channel.poll === 'function') polls.push(channel.poll(controller.signal).catch(() => { console.error('Channel stopped (details redacted).'); }));
+    }
     let closing = false;
     const close = async () => {
       if (closing) return; closing = true; clearInterval(timer); controller.abort();
-      await Promise.all(polls); await new Promise((resolve) => server.close(resolve)); store.close();
+      process.removeListener('SIGINT', close); process.removeListener('SIGTERM', close);
+      await Promise.all(polls); await Promise.all([closeServer(server), closeServer(webhook)]); store.close();
     };
+    timer = setInterval(() => { try { store.sweep(); } catch { console.error('State write failed; stopping.'); void close(); } }, 1000);
+    console.log(`DoneRelay listening on ${env.HOST ?? '127.0.0.1'}:${port}; channels: ${Object.keys(channels).join(', ')}`);
     process.once('SIGINT', close); process.once('SIGTERM', close);
-    return { server, relay, close };
-  } catch (error) { clearInterval(timer); controller.abort(); server?.close(); store.close(); throw error; }
+    return { server, webhook, relay, close };
+  } catch (error) {
+    clearInterval(timer); controller.abort();
+    await Promise.all([closeServer(server), closeServer(webhook)]); store.close(); throw error;
+  }
 }

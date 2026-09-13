@@ -21,8 +21,8 @@ export class Relay {
     const ttlSeconds = input.ttlSeconds ?? 3600;
     check(Number.isInteger(ttlSeconds) && ttlSeconds >= 1 && ttlSeconds <= 86400, 'ttlSeconds must be 1..86400');
     const channels = input.channels ?? Object.keys(this.channels);
-    check(Array.isArray(channels) && channels.length > 0 && channels.length <= 2 &&
-      new Set(channels).size === channels.length && channels.every((c) => this.channels[c]), 'Select configured channels only');
+    check(Array.isArray(channels) && channels.length > 0 && channels.length <= 3 &&
+      new Set(channels).size === channels.length && channels.every((c) => typeof c === 'string' && Object.hasOwn(this.channels, c)), 'Select configured channels only');
     const binding = digest(JSON.stringify({ task, message, kind, channels, ttlSeconds }));
     const key = input.idempotencyKey === undefined ? null : text(input.idempotencyKey, 'idempotencyKey', 160);
     if (key) {
@@ -36,8 +36,14 @@ export class Relay {
       createdAt: this.now(), expiresAt: this.now() + ttlSeconds * 1000, deliveries: {} });
     await Promise.all(channels.map(async (name) => {
       let delivery;
-      try { await this.channels[name].send(formatRequest(r), r); delivery = { status: 'sent' }; }
-      catch { delivery = { status: 'failed', error: 'Delivery failed; check channel credentials, context, and connectivity.' }; }
+      try {
+        const result = await this.channels[name].send(formatRequest(r), r);
+        delivery = { status: 'sent' };
+        if (result?.providerMessageId) delivery.providerMessageId = result.providerMessageId;
+      } catch (error) {
+        delivery = { status: 'failed', error: 'Delivery failed; check channel credentials, context, and connectivity.' };
+        if (['whatsapp_opt_in_required', 'whatsapp_window_closed'].includes(error?.code)) delivery.code = error.code;
+      }
       const current = this.store.get(r.id);
       this.store.patch(r.id, { deliveries: { ...current.deliveries, [name]: delivery } });
     }));
