@@ -13,7 +13,9 @@ const metadataOnly = process.argv.includes('--metadata-only');
 check(process.argv.slice(2).every(x => x === '--metadata-only'), 'Unknown argument');
 
 const pkg = json('package.json');
-const lock = json('package-lock.json');
+// npm deliberately excludes package-lock.json from installed tarballs.
+const lock = fs.existsSync(path.join(root, 'package-lock.json')) ? json('package-lock.json') : null;
+check(lock || !fs.existsSync(path.join(root, '.git')), 'Source checkout is missing its lockfile');
 const portable = json('plugin.json');
 const claude = json('.claude-plugin/plugin.json');
 const catalog = json('.claude-plugin/marketplace.json');
@@ -31,7 +33,7 @@ for (const manifest of [pkg, portable, claude]) {
   check(manifest.description.includes('experimental WeChat'), 'Preserve WeChat maturity label');
   check(Array.isArray(manifest.keywords) && manifest.keywords.includes('codex') && manifest.keywords.includes('claude-code'), 'Missing integration keywords');
 }
-check(lock.version === pkg.version && lock.packages[''].version === pkg.version, 'Lockfile version mismatch');
+if (lock) check(lock.version === pkg.version && lock.packages[''].version === pkg.version, 'Lockfile version mismatch');
 check(portable.repository === url && claude.repository === url, 'Repository mismatch');
 check(portable.extensions['com.openai'].interface.displayName === 'DoneRelay', 'OpenAI branding mismatch');
 for (const manifest of [catalog, openaiCatalog]) {

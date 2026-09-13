@@ -1,6 +1,6 @@
 # DoneRelay submission packet — draft, not submitted
 
-Prepared 2026-09-12 for `0.1.0-alpha.2`. Copy fields only after validating the exact submitted commit. The publisher must supply identity, contact details, accounts, and attestations personally. This file is not evidence of a passed review.
+Prepared 2026-09-12 for `0.1.0-alpha.3`. Copy fields only after validating the exact submitted commit. The publisher must supply identity, contact details, accounts, and attestations personally. This file is not evidence of a passed review.
 
 ## Listing copy
 
@@ -9,7 +9,7 @@ Prepared 2026-09-12 for `0.1.0-alpha.2`. Copy fields only after validating the e
 **Short description:** Telegram notifications and remote human approvals for AI agents.  
 **Category candidate:** Productivity / developer tools, according to the target directory's available choices.
 
-**Description:** DoneRelay connects an integrated agent workflow to a bound private Telegram chat. Receive completion updates, answer a bounded question, or approve or deny one exact operation while away from the keyboard. It includes a portable Codex/Claude Code skill and a separately configured Node.js bridge. Native host permissions remain in force. Personal WeChat support and the native Codex runner are experimental. A running bridge and secure credentials are required; hosted-runtime compatibility and live acceptance remain unverified in this preview.
+**Description:** DoneRelay connects an integrated agent workflow to a bound private Telegram chat. Receive completion updates, answer a bounded question, or approve or deny one exact operation while away from the keyboard. It includes a portable Codex/Claude Code skill and a separately configured Node.js bridge. Native host permissions remain in force. WhatsApp Cloud API is an optional experimental transport requiring a Meta business phone, signed HTTPS webhook, explicit START opt-in, and an active 24-hour customer-service window. STOP disables sends and decisions. There is no approved-template fallback outside that window. Personal WeChat support and the native Codex runner are experimental. A running bridge and secure credentials are required; hosted-runtime compatibility and live acceptance remain unverified in this preview.
 
 **Repository and website:** https://github.com/tianxinzh/DoneRelay  
 **Support:** https://github.com/tianxinzh/DoneRelay/issues  

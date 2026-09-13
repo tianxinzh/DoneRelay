@@ -30,7 +30,7 @@ Do not share tokens here or in an issue. Use distinct secrets for the agent API 
 
 ## Webhook and VPS setup
 
-Run `npm start` with private configuration, or `docker compose up --build -d` after configuring `.env`.
+Run `node --env-file=/secure/path/bridge.env src/cli.js serve`, or set `DONERELAY_ENV_FILE=/secure/path/bridge.env` when running `docker compose up --build -d`. Keep the file outside the agent workspace.
 
 Keep the authenticated agent API on port **8787** private. Route a public HTTPS tunnel or reverse proxy, including Cloudflare Tunnel, to the **separate webhook listener on 8788**. Set Meta's callback to:
 
@@ -48,7 +48,7 @@ From your bound personal recipient, message the business number with **START**. 
 
 ```sh
 printf '%s' '{"kind":"question","task":"checkout-fix","message":"Which empty-cart error wording should we use?","channels":["whatsapp"],"ttlSeconds":300}' \
-  | node --env-file=.env src/cli.js request --wait
+  | node --env-file=/secure/path/agent.env src/cli.js request --wait
 ```
 
 Reply `answer ID Cart is empty` with the actual request ID. The caller should read `answered` and the answer. For an approval, read `approved`; an answer, vague agreement, receipt, or delivery status is never authorization. No extra chat acknowledgement is sent for each inbound message; read the caller's result and final task notification.

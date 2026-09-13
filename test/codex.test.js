@@ -52,3 +52,28 @@ test('Codex owns a live mocked RPC session, waits for approval, and returns acce
   assert.equal(outgoing.some((m) => m.result?.decision === 'acceptForSession'), false);
   input.close();
 });
+
+test('plan mode keeps the host model and returns a bounded native question answer', async () => {
+  const child = new EventEmitter(); child.stdin = new PassThrough(); child.stdout = new PassThrough();
+  child.kill = () => { child.stdin.end(); child.stdout.end(); return true; };
+  const input = createInterface({input:child.stdin});
+  const emit = m => child.stdout.write(JSON.stringify(m)+'\n');
+  let received; let turnParams;
+  input.on('line', line => {
+    const m=JSON.parse(line);
+    if(m.method==='initialize')emit({id:m.id,result:{}});
+    if(m.method==='thread/start')emit({id:m.id,result:{thread:{id:'thread-1'},model:'host-selected-model'}});
+    if(m.method==='turn/start'){
+      turnParams=m.params;emit({id:m.id,result:{}});
+      emit({id:100,method:'item/tool/requestUserInput',params:{...params,questions:[{id:'label',question:'Choose a label',options:[{label:'BLUE'},{label:'GREEN'}]}]}});
+    }
+    if(m.id===100&&m.result){received=m.result;emit({method:'turn/completed',params:{threadId:'thread-1',turn:{status:'completed'}}})}
+  });
+  const client={create:async()=>({id:'ABCDEF012345',status:'pending'}),wait:async()=>({status:'answered',answer:'BLUE'}),cancel:async()=>({})};
+  try{
+    assert.equal((await runCodex({prompt:'Ask a question',plan:true,client,spawnImpl:()=>child})).status,'completed');
+    assert.equal(turnParams.collaborationMode.mode,'plan');
+    assert.equal(turnParams.collaborationMode.settings.model,'host-selected-model');
+    assert.deepEqual(received,{answers:{label:{answers:['BLUE']}}});
+  }finally{input.close()}
+});

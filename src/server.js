@@ -5,13 +5,14 @@ import { Telegram } from './channels/telegram.js';
 import { Weixin } from './channels/weixin.js';
 import { WhatsApp, makeWhatsAppWebhookServer } from './channels/whatsapp.js';
 import { check, RelayError, safeError, secretEqual } from './util.js';
+import { VERSION } from './version.js';
 
 export function makeServer(relay, token) {
   check(typeof token === 'string' && token.length >= 32, 'DONERELAY_API_TOKEN must contain at least 32 characters');
   const server = http.createServer(async (req, res) => {
     const send = (status, body) => { if (!res.destroyed) { res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }); res.end(JSON.stringify(body)); } };
     try {
-      if (req.method === 'GET' && req.url === '/healthz') return send(200, { ok: true, version: '0.1.0-alpha.2' });
+      if (req.method === 'GET' && req.url === '/healthz') return send(200, { ok: true, version: VERSION });
       check(secretEqual(req.headers.authorization, `Bearer ${token}`), 'Unauthorized', 401);
       if (req.method === 'POST' && req.url === '/v1/requests') {
         check(req.headers['content-type']?.split(';')[0] === 'application/json', 'Content-Type must be application/json', 415);

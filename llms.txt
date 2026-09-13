@@ -2,7 +2,7 @@
 
 > Open-source, self-hosted Node.js bridge and agent skill for Telegram task notifications, bounded questions, and single-operation human approvals. Personal WeChat / Weixin is experimental.
 
-Status: alpha source preview. Requires a separately running bridge and locally configured credentials. Live account and installed-host acceptance remain pending. No official directory listing, hosted service, npm publication, or Codex Cloud compatibility is claimed. This optional index is not a search-ranking mechanism.
+Status: alpha source preview. Requires a separately running bridge and locally configured credentials. Partial real Telegram/Codex acceptance and isolated host installation checks are recorded in docs/LAUNCH.md; remaining launch gates are explicit. No official directory listing, hosted service, npm publication, or Codex Cloud compatibility is claimed. This optional index is not a search-ranking mechanism.
 
 ## Documentation
 

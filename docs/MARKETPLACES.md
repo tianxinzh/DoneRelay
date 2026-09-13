@@ -9,7 +9,7 @@ Checked **2026-09-12** against the primary sources linked below. Status: reposit
 | Local Codex skill | Copy `skills/donerelay` to a supported skills directory | Packaged; bridge setup remains separate |
 | OpenAI local plugin | Root `plugin.json` and `.agents/plugins/marketplace.json` | Packaged; host validation pending |
 | OpenAI public directory | Platform plugin submission, review, then publisher-initiated publication | Submission not started |
-| Claude Code self-hosted catalog | Add `tianxinzh/DoneRelay`, install `donerelay@donerelay-plugins` | Catalog provided; clean-host validation pending |
+| Claude Code self-hosted catalog | Add `tianxinzh/DoneRelay`, install `donerelay@donerelay-plugins` | Actual CLI validation and isolated installation passed; see LAUNCH.md |
 | Claude community directory | Submit through Claude's plugin submission form | Not submitted |
 | `claude-plugins-official` | Separate selection by Anthropic, not the community application form | Not listed; selection cannot be promised |
 
@@ -49,7 +49,7 @@ npm run check:discovery
 claude plugin validate . --strict
 ```
 
-The last command requires an installed Claude Code CLI and was **not run** by the repository-only metadata checker. Follow the [manifest reference](https://code.claude.com/docs/en/plugins-reference) and [marketplace format](https://code.claude.com/docs/en/plugin-marketplaces). Keep the `donerelay` slug stable; update descriptions and display names instead of renaming an installed plugin for SEO.
+The last command requires an installed Claude Code CLI. It passed with no warnings on Claude Code 2.1.261 during the validation recorded in [LAUNCH.md](LAUNCH.md); the repository metadata checker is a separate check. Follow the [manifest reference](https://code.claude.com/docs/en/plugins-reference) and [marketplace format](https://code.claude.com/docs/en/plugin-marketplaces). Keep the `donerelay` slug stable; update descriptions and display names instead of renaming an installed plugin for SEO.
 
 ## Position against existing options honestly
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "donerelay",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Telegram notifications, remote approvals, and human answers for Codex, Claude Code, and AI agents. Self-hosted Node.js; experimental WeChat support.",
   "author": {
     "name": "DoneRelay contributors",

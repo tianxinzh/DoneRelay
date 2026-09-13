@@ -1,6 +1,6 @@
 {
   "name": "donerelay",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Telegram notifications, remote approvals, and human answers for Codex, Claude Code, and AI agents. Self-hosted Node.js; experimental WeChat support.",
   "type": "module",
   "license": "MIT",
@@ -11,11 +11,12 @@
     "donerelay": "src/cli.js"
   },
   "scripts": {
-    "start": "node --env-file=.env src/cli.js serve",
+    "start": "node src/cli.js serve",
     "test": "node --test",
     "check": "node --check src/cli.js && node --test",
     "check:discovery": "node scripts/check-discovery.mjs",
-    "demo": "node --env-file=.env examples/request.js"
+    "demo": "node examples/request.js",
+    "check:package": "node scripts/check-package.mjs"
   },
   "files": [
     "src",
@@ -34,7 +35,9 @@
     "SECURITY.md",
     "LICENSE",
     "llms.txt",
-    ".env.example"
+    ".env.example",
+    "CONTRIBUTING.md",
+    "scripts/render-checkout-demo.py"
   ],
   "repository": {
     "type": "git",
