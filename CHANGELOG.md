@@ -1,13 +1,24 @@
 # Changelog
 
+## Unreleased — after 0.1.0-alpha.2
+
+- Embed the approved illustrated checkout workflow GIF and a static alternative in the English and Chinese READMEs. Include editable source and a reproducible asset-rendering workflow. This is not live account footage.
+- Add experimental WhatsApp Cloud API notifications, questions, and exact-operation approvals with short-message buttons and complete-text fallback.
+- Isolate signed WhatsApp callbacks on a separate listener; validate raw-body HMAC, WABA, business number, and bound sender.
+- Add durable START/STOP consent, conservative 24-hour-window enforcement, replay protection, and atomic reply handling. No template fallback or delivery/read-receipt tracking is included.
+- Allow Telegram, WhatsApp, and Weixin to share one request and first-valid-decision semantics.
+- Add adapter/security tests plus a full local HTTP startup flow against a mocked Meta provider. Update configuration, Docker port mapping, skill guidance, privacy and setup documentation.
+
+Live Meta account setup and acceptance testing remain required. No new registry release or marketplace listing is implied.
+
 ## 0.1.0-alpha.2 — 2026-09-12
 
-Documentation and distribution-metadata update; no relay runtime changes.
+Documentation and distribution-metadata update; no relay runtime changes in that version.
 
 - Clarify Telegram notifications, remote approvals, Codex/Claude integration, and experimental WeChat scope in bilingual onboarding.
-- Add current portable OpenAI plugin manifest and local marketplace catalog; improve Claude catalog metadata without renaming its slug.
+- Add portable OpenAI plugin manifest and local marketplace catalog; improve Claude catalog metadata without renaming its slug.
 - Improve skill discovery text while preserving explicit invocation and native permission boundaries.
-- Add installation/FAQ guides, optional factual `llms.txt`, SEO plan, sourced marketplace research, and a draft submission packet.
+- Add installation/FAQ guides, factual llms.txt, SEO plan, sourced marketplace research, and a draft submission packet.
 - Add source privacy/terms notices and automated discovery metadata/link checks.
 
 No official directory submission, npm publication, live channel acceptance, production deployment, or Cloud compatibility is implied. See [submission status](docs/SUBMISSION.md).

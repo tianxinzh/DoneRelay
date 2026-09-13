@@ -7,9 +7,13 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8787
+      WHATSAPP_WEBHOOK_HOST: 0.0.0.0
+      WHATSAPP_WEBHOOK_PORT: 8788
       DONERELAY_STATE_FILE: /app/data/state.json
     ports:
       - "127.0.0.1:8787:8787"
+      # Route the WhatsApp HTTPS tunnel to 8788 only; keep the agent API private.
+      - "127.0.0.1:8788:8788"
     volumes:
       - state:/app/data
     read_only: true

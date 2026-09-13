@@ -1,42 +1,41 @@
-# DoneRelay — Telegram notifications and remote approvals for AI agents
+# DoneRelay — Telegram & WhatsApp notifications and remote approvals for AI agents
 
 **Leave the keyboard. Keep the human in the loop.**
 
-DoneRelay is an open-source, self-hosted **Node.js bridge and agent skill for Codex, Claude Code, and other AI agents**. Receive task-completion notifications, answer questions, and approve or deny a specific operation from Telegram. **Personal WeChat / Weixin support is experimental.**
+DoneRelay is an open-source, self-hosted **Node.js bridge and agent skill for Codex, Claude Code, and other AI agents**. Receive task-completion notifications, answer questions, and approve or deny a specific operation from **Telegram or WhatsApp Cloud API**. **Personal WeChat / Weixin support is experimental.**
 
-[简体中文](README.zh-CN.md) · [Install the skill](docs/INSTALLATION.md) · [FAQ](docs/FAQ.md) · [Marketplace status](docs/MARKETPLACES.md) · [Security](SECURITY.md)
+[简体中文](README.zh-CN.md) · [Install the skill](docs/INSTALLATION.md) · [WhatsApp setup](docs/WHATSAPP.md) · [FAQ](docs/FAQ.md) · [Marketplace status](docs/MARKETPLACES.md) · [Security](SECURITY.md)
 
-> **0.1.0-alpha.2 — source preview.** This update improves documentation and plugin packaging, not channel maturity. Live Telegram, Weixin, and authenticated agent acceptance tests are still required. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, or Tencent.
+![DoneRelay checkout example: the agent fixes an empty-cart crash, requests a staging deployment approval in Telegram, continues after approval, and sends the result](docs/assets/donerelay-checkout-demo.gif)
+
+*Illustrated workflow — not a live agent or account recording. The example shows Telegram; WhatsApp uses the Cloud API setup below.* [Static version / reduced motion](docs/assets/donerelay-checkout-demo-poster.png) · [Editable demo source](scripts/render-checkout-demo.py)
+
+> **Source preview: unreleased additions after 0.1.0-alpha.2.** WhatsApp code and automated tests are included; live Telegram, WhatsApp, Weixin, and authenticated agent acceptance tests are still required. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, Meta, or Tencent.
 
 ## What problem does it solve?
 
-A long-running agent reaches a decision while you are away. Instead of waiting at the keyboard, receive a specific question on your phone, reply, and let the **same still-running, integrated workflow** read the result. A completion notification closes the loop.
+A long-running agent reaches a decision while you are away. Receive the exact question on your phone, reply, and let the **same still-running, integrated workflow** read the result. A completion notification closes the loop.
 
-```text
-Agent: “Deploy commit abc123 to staging? Production is unchanged.”
-   → DoneRelay sends request A1B2C3D4E5F6 to your bound private chat
-   → You select Approve or reply: approve A1B2C3D4E5F6
-   → The calling workflow reads the decision and checks native permissions
-   → It may continue that exact operation, once
-```
+In the illustrated checkout example, the agent fixes an empty-cart crash and passes six fictional regression tests, then asks permission to deploy commit `8f2c91a` to staging. You approve from Telegram, the workflow checks native permissions, and only that staging operation continues. The final message reports a successful smoke check and that production was unchanged. These are scenario details, not test results for DoneRelay itself.
 
-This is an illustrated workflow, not a recording of a live account test. Chat replies are never executed as shell commands.
+Chat replies are never executed as shell commands. A skill does not automatically intercept every native permission prompt or revive a terminated process.
 
 ## Compatibility and scope
 
 | Integration | What this source includes | Important boundary |
 | --- | --- | --- |
 | Telegram | Notifications, numbered text answers, approve/deny buttons | Bound private user; live acceptance pending |
+| WhatsApp Cloud API | Notifications, questions, approve/deny buttons or explicit text replies | Meta Business setup, HTTPS webhook, START opt-in, 24-hour reply window; live acceptance pending |
 | Personal WeChat / Weixin | Experimental text transport and numbered replies | Separate authorized setup; idle-session behavior unverified |
-| Codex skill | Portable `SKILL.md` and standalone Node client | Requires a separately running bridge |
-| Native Codex runner | Experimental runner-owned App Server session | New session only; real installed-version validation pending |
+| Codex skill | Portable SKILL.md and standalone Node client | Requires a separately running bridge |
+| Native Codex runner | Experimental runner-owned App Server session | New session only; installed-version validation pending |
 | Claude Code | Skill packaged as a plugin | Not native Claude permission interception or a Channels plugin |
 | Other agents | Authenticated HTTP API and CLI | Caller must wait, check the result, and enforce host policy |
 | Codex Cloud / arbitrary existing terminal | Not verified / no session takeover | Installation does not grant background execution or connectivity |
 
 ## Quick start: Telegram bridge
 
-Requires **Node.js 22+** and a Telegram bot you control. No runtime npm dependencies.
+Requires **Node.js 22+** and a Telegram bot you control. No runtime npm dependencies. WhatsApp users should also follow [WhatsApp setup](docs/WHATSAPP.md); this is not a personal-account QR login.
 
 ### 1. Get the source and run checks
 
@@ -56,13 +55,13 @@ chmod 600 .env
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-Use that locally generated value for `DONERELAY_API_TOKEN`. Set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, and `TELEGRAM_USER_ID` in your private configuration. Send your bot a private message first. Inspect `chat.id` and `from.id` locally using the [Telegram Bot API](https://core.telegram.org/bots/api#getupdates); do not publish the response. A bot must not have another poller or an active webhook competing with this service.
+Use that generated value for `DONERELAY_API_TOKEN`. Set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, and `TELEGRAM_USER_ID` in your private configuration. Send your bot a private message first. Inspect `chat.id` and `from.id` locally using the [Telegram Bot API](https://core.telegram.org/bots/api#getupdates); do not publish the response. A bot must not have another poller or an active webhook competing with this service.
 
 ```sh
 npm start
 ```
 
-For actual agent use, keep bot credentials **outside the agent's workspace**, preferably under a separate OS user. Give the agent only the bridge URL and API token. Never commit `.env` or `data/`.
+Keep messaging credentials **outside the agent's workspace**, preferably under a separate OS user. Give the agent only the bridge URL and API token. Never commit `.env` or `data/`.
 
 ### 3. Try a harmless question
 
@@ -72,7 +71,24 @@ In another terminal:
 npm run demo
 ```
 
-Reply `answer ID SQLite` using the ID in the message. This example prints the answer and exits; it does not deploy anything. Chinese replies are supported: `回答 ID 内容`, `批准 ID`, and `拒绝 ID`. “Okay” alone is not an approval.
+Reply `answer ID SQLite` using the ID in the message. This example prints the answer and exits; it does not deploy anything. Chinese replies are supported: `回答 ID 内容`, `批准 ID`, and `拒绝 ID`. “Okay” alone is not approval.
+
+## WhatsApp: notifications, questions, and approvals
+
+The adapter uses **Meta's WhatsApp Business Platform Cloud API**, not WhatsApp Web automation. The sender requires a configured Meta app and business phone number; you receive and answer messages in WhatsApp on your phone.
+
+Configure `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_BUSINESS_ACCOUNT_ID`, `WHATSAPP_USER_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, and a supported `WHATSAPP_GRAPH_VERSION`. Then start the bridge and point your HTTPS tunnel or reverse proxy at **port 8788**, not the private agent API on 8787. Set the Meta callback to `/webhooks/whatsapp` and subscribe to messages for your WhatsApp Business Account.
+
+Send **START** from the bound recipient to opt in. A later **STOP** disables WhatsApp sends and decisions until a fresh START. Then try:
+
+```sh
+printf '%s' '{"kind":"question","task":"checkout-fix","message":"Should the empty-cart error say Cart is empty or Add an item first?","channels":["whatsapp"],"ttlSeconds":300}' \
+  | node --env-file=.env src/cli.js request --wait
+```
+
+Reply `answer ID Cart is empty`. Approval requests use **Approve once / Deny** buttons when the full message fits the interactive limit; longer proposals stay complete text with numbered commands.
+
+**Important:** free-form sends require an active 24-hour customer-service window. This version has **no approved-template fallback**. After the window closes, WhatsApp delivery fails explicitly; it never implies consent. Telegram can remain enabled alongside WhatsApp. See [setup, window behavior, failure codes, and live-test checklist](docs/WHATSAPP.md).
 
 ## Install in Codex or Claude Code
 
@@ -94,7 +110,7 @@ For Claude Code, use **DoneRelay's own catalog**, not an official directory list
 /plugin install donerelay@donerelay-plugins
 ```
 
-Invoke `/donerelay:donerelay` with a bounded request after setup. See [installation and smoke tests](docs/INSTALLATION.md). The root `plugin.json` and `.agents/plugins/marketplace.json` also provide current OpenAI plugin packaging; host-side validation remains required.
+Invoke `/donerelay:donerelay` with a bounded request after setup. See [installation and smoke tests](docs/INSTALLATION.md). The root `plugin.json` and `.agents/plugins/marketplace.json` provide OpenAI plugin packaging; host-side validation remains required.
 
 ## Native Codex: start a task with remote approval handling
 
@@ -114,11 +130,11 @@ It cannot attach to an unrelated terminal, keep a dead process alive, or recover
 
 The main-branch adapter uses the published [Tencent Weixin client protocol](https://github.com/Tencent/openclaw-weixin/blob/main/docs/protocol.md). This is personal Weixin, not WeCom and not a notification-only webhook. Configure your own `WEIXIN_BOT_TOKEN` and `WEIXIN_USER_ID` locally after authorized setup. This preview does not include a QR-login wizard or read another application's credential files.
 
-Send a private message from the bound account to establish conversation context. Do not run competing consumers for the same credentials. Telegram and Weixin resolve the same request: the first valid decision wins. Account eligibility, idle-session delivery, and expiry behavior need live tests. See [Weixin setup](docs/WEIXIN.md).
+Send a private message from the bound account to establish conversation context. Do not run competing consumers for the same credentials. Telegram, WhatsApp, and Weixin resolve the same request: the first valid decision wins. Weixin account eligibility, idle-session delivery, and expiry behavior need live tests. See [Weixin setup](docs/WEIXIN.md).
 
 ## HTTP API and CLI for other agents
 
-All endpoints except `/healthz` require `Authorization: Bearer <DONERELAY_API_TOKEN>`.
+All agent API endpoints except `/healthz` require `Authorization: Bearer <DONERELAY_API_TOKEN>`.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
@@ -126,14 +142,16 @@ All endpoints except `/healthz` require `Authorization: Bearer <DONERELAY_API_TO
 | GET | `/v1/requests/:id` | Read status and answer |
 | POST | `/v1/requests/:id/cancel` | Cancel a pending request |
 
-There is deliberately **no HTTP endpoint that accepts a claimed human approval**. Decisions come from bound channel users.
+There is **no agent API endpoint that accepts a claimed human approval**. Decisions enter through bound channel users; WhatsApp webhooks are authenticated with Meta's raw-body signature on a separate listener.
 
 ```sh
 printf '%s' '{"kind":"question","task":"storage-choice","message":"SQLite or PostgreSQL?","ttlSeconds":300}' \
   | node --env-file=.env src/cli.js request --wait
 ```
 
-Check the request ID, proposal, and status. `answered` is not `approved`. An optional `idempotencyKey` deduplicates creation within the seven-day retention window; downstream actions are not guaranteed exactly-once.
+Choose `channels: ["telegram", "whatsapp", "weixin"]` or a configured subset; omitting channels selects all configured transports. Check request ID, proposal, delivery results, and status. `answered` is not `approved`. A `sent` delivery means the provider accepted the API call, not that the phone displayed it. WhatsApp includes a provider message ID; delivery/read receipts are not tracked.
+
+An optional `idempotencyKey` deduplicates creation within seven days; downstream actions are not guaranteed exactly-once. A failed request is not automatically redelivered when connectivity or the WhatsApp window returns. Cancel a pending failed request and create a fresh one with a new key rather than assuming the old one was sent.
 
 ## VPS and Docker
 
@@ -141,22 +159,26 @@ Check the request ID, proposal, and status. `answered` is not `approved`. An opt
 docker compose up --build -d
 ```
 
-The host port binds to `127.0.0.1:8787`. Channel replies use outbound polling, so no public inbound messaging callback is needed. Docker assets include a non-root service and persistent volume but have not been live-deployed in this preview. A remote agent still needs an authenticated, reachable bridge; localhost on a laptop is not reachable from a cloud sandbox.
+The private API binds to host `127.0.0.1:8787`. Telegram and Weixin use outbound polling. **WhatsApp needs a public HTTPS callback**, routed only to its separate `127.0.0.1:8788` listener. Docker publishes both ports on host loopback; do not expose 8787 through the WhatsApp tunnel. A remote agent separately needs an authenticated, reachable bridge.
+
+Docker assets include a non-root service and persistent volume but have not been live-deployed in this preview.
 
 ## Safety and failure behavior
 
-Requests carry a random ID, complete proposal, content hash, and expiry. Only the configured private user can resolve one. Timeout, failed delivery, an unknown sender, or no reply never means approval. Native host permissions remain in force.
+Requests carry a random ID, complete proposal, content hash, and expiry. Only the configured user can resolve one. Timeout, failed delivery, an unknown sender, or no reply never means approval. Native host permissions remain in force.
 
-**Main-branch behavior:** pending requests are cancelled after restart. Existing decisions are not automatically executed. Local state is plaintext with private file permissions and seven-day completed-request retention. One process owns a state file. After a crash, a stale `.lock` intentionally blocks startup; verify the old process has stopped before removing it. Same-user host compromise is outside this isolation model.
+WhatsApp verifies raw-body HMAC signatures, the business account, business phone number, and sender. Consent, replay markers, and valid decisions are written atomically before the webhook acknowledges receipt. Repeated callbacks cannot resolve the same request twice. Invalid replies are ignored; the calling agent reads the stored result. WhatsApp does not send an additional acknowledgement bubble for every chat message in this preview.
+
+**Main-branch behavior:** pending requests are cancelled after restart. Existing decisions are not automatically executed. Local state is plaintext with private file permissions and seven-day completed-request retention. One process owns a state file. After a crash, a stale `.lock` blocks startup; verify the old process has stopped before removing it. Same-user host compromise is outside this isolation model.
 
 Read [SECURITY.md](SECURITY.md), [privacy and data flow](PRIVACY.md), and [FAQ](docs/FAQ.md) before sensitive use.
 
 ## Distribution, roadmap, and contributions
 
-[Marketplace research](docs/MARKETPLACES.md) explains current OpenAI submission and Claude community-versus-official routes. [Submission materials](docs/SUBMISSION.md) contain draft listing copy, reviewer scenarios, and release gates. Local catalogs do not confer approval or endorsement.
+[Marketplace research](docs/MARKETPLACES.md) explains OpenAI submission and Claude community-versus-official routes. [Submission materials](docs/SUBMISSION.md) contain draft listing copy, reviewer scenarios, and release gates. Local catalogs do not confer approval or endorsement.
 
-Next gates: real Telegram acceptance, Weixin login/idle-session validation, native Codex compatibility, clean-host plugin installation, and owner-reviewed publication. There is no published npm install command to advertise yet.
+Next gates: real Telegram/WhatsApp acceptance, an approved WhatsApp template workflow for longer idle periods, Weixin login/idle-session validation, native Codex compatibility, clean-host plugin installation, and owner-reviewed publication. There is no published npm install command to advertise yet.
 
-Issues, reproducible tests, and small pull requests are welcome. A star helps people bookmark the project; the more useful contribution is reporting a tested host version or a reproducible setup problem. No manufactured installs, stars, or ranking claims.
+Issues, reproducible tests, and small pull requests are welcome. A star helps people bookmark the project; reporting a tested host version or a reproducible setup problem is especially useful. No manufactured installs, stars, or ranking claims.
 
 [MIT license](LICENSE) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
