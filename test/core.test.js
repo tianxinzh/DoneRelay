@@ -122,3 +122,11 @@ test('client rejects insecure remote origins and credentials embedded in URLs', 
     assert.throws(() => new Client({ ...env, DONERELAY_URL: url }), /HTTPS or loopback/);
   }
 });
+test('a failed channel delivery cannot grant approval even from its bound user', async (t) => {
+  const {store}=setup(t);
+  const relay=new Relay(store,{telegram:{authorize:()=>true,send:async()=>{throw Error('provider failed')}}});
+  const r=await relay.create({...approval,channels:['telegram']});
+  assert.equal(r.deliveries.telegram.status,'failed');
+  assert.throws(()=>relay.receive('telegram',`approve ${r.id}`,actor),/delivery is not confirmed/);
+  assert.equal(store.get(r.id).status,'pending');
+});

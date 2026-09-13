@@ -10,7 +10,7 @@ DoneRelay is an open-source, self-hosted **Node.js bridge and agent skill for Co
 
 *Illustrated workflow — not a live agent or account recording. The example shows Telegram; WhatsApp uses the Cloud API setup below.* [Static version / reduced motion](docs/assets/donerelay-checkout-demo-poster.png) · [Editable demo source](scripts/render-checkout-demo.py)
 
-> **Source preview: unreleased additions after 0.1.0-alpha.2.** WhatsApp code and automated tests are included; live Telegram, WhatsApp, Weixin, and authenticated agent acceptance tests are still required. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, Meta, or Tencent.
+> **Telegram-first prerelease candidate: 0.1.0-alpha.3.** WhatsApp code and automated tests are included; real Telegram/Codex completion, approval, and expiration have been exercised on the VPS. The [launch record](docs/LAUNCH.md) lists remaining phone tests and unvalidated channels. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, Meta, or Tencent.
 
 ## What problem does it solve?
 
@@ -28,7 +28,7 @@ Chat replies are never executed as shell commands. A skill does not automaticall
 | WhatsApp Cloud API | Notifications, questions, approve/deny buttons or explicit text replies | Meta Business setup, HTTPS webhook, START opt-in, 24-hour reply window; live acceptance pending |
 | Personal WeChat / Weixin | Experimental text transport and numbered replies | Separate authorized setup; idle-session behavior unverified |
 | Codex skill | Portable SKILL.md and standalone Node client | Requires a separately running bridge |
-| Native Codex runner | Experimental runner-owned App Server session | New session only; installed-version validation pending |
+| Native Codex runner | Experimental runner-owned App Server session | New session only; Codex 0.154.0 partial live acceptance recorded |
 | Claude Code | Skill packaged as a plugin | Not native Claude permission interception or a Channels plugin |
 | Other agents | Authenticated HTTP API and CLI | Caller must wait, check the result, and enforce host policy |
 | Codex Cloud / arbitrary existing terminal | Not verified / no session takeover | Installation does not grant background execution or connectivity |
@@ -50,25 +50,34 @@ npm run check:discovery
 ### 2. Configure credentials locally
 
 ```sh
-cp .env.example .env
-chmod 600 .env
+mkdir -p ~/.config/donerelay
+cp .env.example ~/.config/donerelay/bridge.env
+chmod 600 ~/.config/donerelay/bridge.env
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 Use that generated value for `DONERELAY_API_TOKEN`. Set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, and `TELEGRAM_USER_ID` in your private configuration. Send your bot a private message first. Inspect `chat.id` and `from.id` locally using the [Telegram Bot API](https://core.telegram.org/bots/api#getupdates); do not publish the response. A bot must not have another poller or an active webhook competing with this service.
 
 ```sh
-npm start
+node --env-file="$HOME/.config/donerelay/bridge.env" src/cli.js serve
 ```
 
 Keep messaging credentials **outside the agent's workspace**, preferably under a separate OS user. Give the agent only the bridge URL and API token. Never commit `.env` or `data/`.
 
-### 3. Try a harmless question
+### 3. Check setup, then try a harmless question
 
-In another terminal:
+Check the running bridge locally. This command prints only check results and guidance; it does not send messages or display secrets:
 
 ```sh
-npm run demo
+node --env-file=/secure/path/bridge.env src/cli.js doctor --bridge
+```
+
+On the agent host, configure only the bridge URL and API token, then run `donerelay doctor`. A version mismatch, missing setting, unreachable service, or rejected token exits with code 1. The [setup guide](docs/INSTALLATION.md#guided-setup-check) explains each next step.
+
+Create `~/.config/donerelay/agent.env` privately (mode 600) with only `DONERELAY_URL=http://127.0.0.1:8787` and the same `DONERELAY_API_TOKEN`. In another terminal:
+
+```sh
+node --env-file="$HOME/.config/donerelay/agent.env" examples/request.js
 ```
 
 Reply `answer ID SQLite` using the ID in the message. This example prints the answer and exits; it does not deploy anything. Chinese replies are supported: `回答 ID 内容`, `批准 ID`, and `拒绝 ID`. “Okay” alone is not approval.
@@ -83,7 +92,7 @@ Send **START** from the bound recipient to opt in. A later **STOP** disables Wha
 
 ```sh
 printf '%s' '{"kind":"question","task":"checkout-fix","message":"Should the empty-cart error say Cart is empty or Add an item first?","channels":["whatsapp"],"ttlSeconds":300}' \
-  | node --env-file=.env src/cli.js request --wait
+  | node --env-file="$HOME/.config/donerelay/agent.env" src/cli.js request --wait
 ```
 
 Reply `answer ID Cart is empty`. Approval requests use **Approve once / Deny** buttons when the full message fits the interactive limit; longer proposals stay complete text with numbered commands.
@@ -117,12 +126,14 @@ Invoke `/donerelay:donerelay` with a bounded request after setup. See [installat
 Install and authenticate Codex separately. With the bridge running:
 
 ```sh
-node --env-file=.env src/cli.js codex \
+node --env-file="$HOME/.config/donerelay/agent.env" src/cli.js codex \
   --cwd /absolute/path/to/your/project \
   --prompt "Inspect this project and run its tests."
 ```
 
 The runner creates a **new** App Server thread with `untrusted` approval policy and `workspace-write` sandbox. It relays supported command/file approvals, non-secret structured questions, and completion notifications. It does not grant session-wide permission; oversized proposals are denied for local review. Validate against your installed Codex version before relying on it.
+
+For native structured questions, use `donerelay codex --plan --prompt "Ask me which option to plan for."`. On Codex 0.154.0 the question tool is available in plan mode; the adapter preserves the host-selected model. Plan mode is for questions/planning, not execution.
 
 It cannot attach to an unrelated terminal, keep a dead process alive, or recover a lost native approval after restart. The Docker image contains the bridge, not an authenticated Codex installation.
 
@@ -146,7 +157,7 @@ There is **no agent API endpoint that accepts a claimed human approval**. Decisi
 
 ```sh
 printf '%s' '{"kind":"question","task":"storage-choice","message":"SQLite or PostgreSQL?","ttlSeconds":300}' \
-  | node --env-file=.env src/cli.js request --wait
+  | node --env-file="$HOME/.config/donerelay/agent.env" src/cli.js request --wait
 ```
 
 Choose `channels: ["telegram", "whatsapp", "weixin"]` or a configured subset; omitting channels selects all configured transports. Check request ID, proposal, delivery results, and status. `answered` is not `approved`. A `sent` delivery means the provider accepted the API call, not that the phone displayed it. WhatsApp includes a provider message ID; delivery/read receipts are not tracked.
@@ -156,12 +167,12 @@ An optional `idempotencyKey` deduplicates creation within seven days; downstream
 ## VPS and Docker
 
 ```sh
-docker compose up --build -d
+DONERELAY_ENV_FILE="$HOME/.config/donerelay/bridge.env" docker compose up --build -d
 ```
 
 The private API binds to host `127.0.0.1:8787`. Telegram and Weixin use outbound polling. **WhatsApp needs a public HTTPS callback**, routed only to its separate `127.0.0.1:8788` listener. Docker publishes both ports on host loopback; do not expose 8787 through the WhatsApp tunnel. A remote agent separately needs an authenticated, reachable bridge.
 
-Docker assets include a non-root service and persistent volume but have not been live-deployed in this preview.
+The non-root Docker bridge with persistent volume has been deployed on the validation VPS. See the launch record for its tested scope.
 
 ## Safety and failure behavior
 
@@ -182,3 +193,7 @@ Next gates: real Telegram/WhatsApp acceptance, an approved WhatsApp template wor
 Issues, reproducible tests, and small pull requests are welcome. A star helps people bookmark the project; reporting a tested host version or a reproducible setup problem is especially useful. No manufactured installs, stars, or ranking claims.
 
 [MIT license](LICENSE) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
+
+## Launch evidence
+
+The [launch record](docs/LAUNCH.md) separates real VPS/host checks from automated fixtures and lists decisions still needed. Main is the supported implementation; pending requests are cancelled on restart. PR #2 is an alternative design and must not be mixed with this client or service.

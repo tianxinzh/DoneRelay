@@ -55,6 +55,7 @@ export class Store {
     const r = this.get(id);
     check(r.status === 'pending', `Request is already ${r.status}`, 409);
     check(r.channels.includes(actor.channel), 'Request was not sent to this channel', 403);
+    check(r.deliveries[actor.channel]?.status === 'sent', 'Request delivery is not confirmed for this channel', 409);
     check(r.kind === 'approval' ? ['approve', 'deny'].includes(action) : action === 'answer', 'Reply type does not match request');
     return this.patch(id, { status: action === 'approve' ? 'approved' : action === 'deny' ? 'denied' : 'answered',
       answer: action === 'answer' ? answer : null, resolvedAt: this.now(), resolvedBy: actor });

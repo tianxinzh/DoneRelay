@@ -52,3 +52,15 @@ No `.env` or credential value belongs in this guide's examples. A cloud sandbox'
 | WeChat cannot send after idle time | Conversation context/session may be invalid; do not infer success or approval |
 
 See [FAQ](FAQ.md), [Weixin setup](WEIXIN.md), and [security](../SECURITY.md).
+
+## Guided setup check
+
+Use a private configuration file outside the project. The bridge file contains messaging credentials; the agent file contains only `DONERELAY_URL` and `DONERELAY_API_TOKEN`. Restrict both to their owner (`chmod 600`). Do not paste credentials into chat or a bug report.
+
+1. Start the bridge following the README. Keep the agent API on loopback port 8787.
+2. On the bridge host, run `node --env-file=/secure/path/bridge.env src/cli.js doctor --bridge`.
+3. On the agent host, run `node --env-file=/secure/path/agent.env src/cli.js doctor` (or the installed `donerelay doctor` with that environment).
+4. Follow the named failing check: configure missing variables, start the service, correct its URL/token, or use matching client/service releases. Exit 0 means every performed check passed; exit 1 requires attention.
+5. Run the harmless question example and read the exact answer in the waiting caller. A health check alone does not prove phone delivery or host permission handling.
+
+The doctor uses read-only health/authentication requests. Bridge mode also checks configured channel formats and Telegram account/private-chat/webhook state. It never changes a webhook, polls replies, creates a request, or prints provider response bodies. It cannot establish that no other bot poller exists. WhatsApp and Weixin checks are local configuration checks, not live account acceptance.

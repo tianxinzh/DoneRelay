@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0-alpha.3
+
+- Keep main’s JSON request schema and cancellation of pending requests on restart as the single supported implementation.
+- Require confirmed channel delivery before a Telegram/Weixin decision, matching the WhatsApp boundary.
+- Add explicit native Codex plan mode for structured questions on the tested CLI.
+- Add a read-only, secret-safe `doctor` command for agent connectivity and bridge configuration checks.
+- Synchronize CLI, health endpoint, and native adapter versions with package metadata.
+- Repair packaged discovery checks and README source links.
+- Record actual host validation and remaining launch gates separately from mock-provider tests.
+
 ## Unreleased — after 0.1.0-alpha.2
 
 - Embed the approved illustrated checkout workflow GIF and a static alternative in the English and Chinese READMEs. Include editable source and a reproducible asset-rendering workflow. This is not live account footage.

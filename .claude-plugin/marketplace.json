@@ -25,5 +25,8 @@
         "nodejs"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "description": "DoneRelay: Telegram notifications and bounded remote decisions for AI agent workflows."
+  }
 }

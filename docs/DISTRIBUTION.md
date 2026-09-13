@@ -1,6 +1,6 @@
 # DoneRelay distribution and discovery
 
-Updated 2026-09-12. Source version `0.1.0-alpha.2`. No official submission, listing, npm publication, or Cloud compatibility is claimed.
+Updated 2026-09-13. Source version `0.1.0-alpha.3`. No official submission, listing, npm publication, or Cloud compatibility is claimed.
 
 ## Install now from source
 

@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import path from 'node:path';
 import { check, RelayError } from '../util.js';
+import { VERSION } from '../version.js';
 
 export function approvalInput(method, p, item) {
   check(p?.threadId && p?.turnId && p?.itemId, 'Native approval is missing session identifiers');
@@ -34,7 +35,7 @@ export function agentEnvironment(env = process.env) {
 }
 
 // Starts its OWN App Server connection. It does not attach to an arbitrary CLI session.
-export async function runCodex({ prompt, cwd = process.cwd(), client, command = 'codex', spawnImpl = spawn }) {
+export async function runCodex({ prompt, cwd = process.cwd(), client, command = 'codex', plan = false, spawnImpl = spawn }) {
   check(typeof prompt === 'string' && prompt.trim(), 'A prompt is required');
   const env = agentEnvironment();
   const child = spawnImpl(command, ['app-server'], { cwd: path.resolve(cwd), env, stdio: ['pipe', 'pipe', 'inherit'] });
@@ -128,11 +129,16 @@ export async function runCodex({ prompt, cwd = process.cwd(), client, command = 
   const stop = () => { failure(); child.kill('SIGTERM'); };
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
-    await call('initialize', { clientInfo: { name: 'donerelay', title: 'DoneRelay', version: '0.1.0' }, capabilities: { experimentalApi: true } });
+    await call('initialize', { clientInfo: { name: 'donerelay', title: 'DoneRelay', version: VERSION }, capabilities: { experimentalApi: true } });
     send({ method: 'initialized', params: {} });
     const started = await call('thread/start', { cwd: path.resolve(cwd), approvalPolicy: 'untrusted', sandbox: 'workspace-write' });
     threadId = started.thread.id;
-    await call('turn/start', { threadId, input: [{ type: 'text', text: prompt }] });
+    const turnParams = { threadId, input: [{ type: 'text', text: prompt }] };
+    if (plan) {
+      check(typeof started.model === 'string' && started.model, 'Codex did not report the model required for plan mode');
+      turnParams.collaborationMode = { mode: 'plan', settings: { model: started.model, reasoning_effort: null, developer_instructions: null } };
+    }
+    await call('turn/start', turnParams);
     const turn = await done;
     await client.create({ kind: 'notification', task: `Codex ${threadId}`, message: `Turn ${turn?.status ?? 'finished'}\n${lastMessage}`.slice(0, 2000) });
     return { threadId, status: turn?.status ?? 'unknown' };

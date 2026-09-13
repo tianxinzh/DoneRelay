@@ -12,7 +12,7 @@ DoneRelay 是开源、自托管的 Node.js 桥接服务和 Agent Skill：通过 
 
 ## 当前状态
 
-这是 `0.1.0-alpha.2` 之后的未发布源码更新，加入实验性 WhatsApp Cloud API 适配器。**尚未完成真实 Telegram、WhatsApp、微信和已认证 Agent 的端到端验收。** 未上架官方目录、未发布 npm，不承诺 Codex Cloud 可用，也不是相关平台的官方产品。
+这是以 Telegram 为首发范围的 `0.1.0-alpha.3` 候选版本。已在 VPS 实测 Codex 完成通知、手机批准和超时拒绝执行；其余验收与阻塞项见 [发布记录](docs/LAUNCH.md)。WhatsApp 和微信尚未完成真实账号验收。 未上架官方目录、未发布 npm，不承诺 Codex Cloud 可用，也不是相关平台的官方产品。
 
 工作流：Agent 提出具体问题 → 发到绑定账号 → 你回复 → 仍在运行的调用方读取结果并继续检查原生权限。Skill 不会自动接管任意终端，不能复活已终止的任务。动画里的测试数量、commit 和部署结果属于虚构示例，不是本工具的实测结果。
 
@@ -24,11 +24,12 @@ DoneRelay 是开源、自托管的 Node.js 桥接服务和 Agent Skill：通过 
 npm ci --ignore-scripts
 npm test
 npm run check:discovery
-cp .env.example .env
-chmod 600 .env
+mkdir -p ~/.config/donerelay
+cp .env.example ~/.config/donerelay/bridge.env
+chmod 600 ~/.config/donerelay/bridge.env
 ```
 
-本地生成随机 DONERELAY_API_TOKEN；配置 Telegram bot token、个人 chat ID 和 user ID。先私聊机器人，再启动 `npm start`。另一个终端运行 `npm run demo`，收到问题后回复 `回答 请求编号 SQLite`。
+本地生成随机 DONERELAY_API_TOKEN；配置 Telegram bot token、个人 chat ID 和 user ID。先私聊机器人，再运行 `node --env-file="$HOME/.config/donerelay/bridge.env" src/cli.js serve`。运行同样带配置的 `src/cli.js doctor --bridge` 检查设置。为 Agent 单独创建仅含 URL 和 API token 的 `agent.env`；用此文件运行 `examples/request.js`，收到问题后回复 `回答 请求编号 SQLite`。
 
 审批使用 `批准 请求编号`、`拒绝 请求编号` 或按钮；含糊的“好”不是授权。三个渠道共用请求，先到的有效决定生效。凭证应放在 Agent 工作目录之外，最好让桥接服务使用单独系统用户；不要把 token 放进聊天、issue 或 Git。
 
@@ -67,10 +68,10 @@ Claude Code 使用本项目自托管目录：
 实验性 Codex App Server runner 创建并管理自己的新会话：
 
 ```sh
-node --env-file=.env src/cli.js codex --cwd /你的项目绝对路径 --prompt "检查项目并运行测试"
+node --env-file="$HOME/.config/donerelay/agent.env" src/cli.js codex --cwd /你的项目绝对路径 --prompt "检查项目并运行测试"
 ```
 
-它只转发已支持的单次审批、非敏感问题和完成通知，不绕过沙箱，不提供会话级无限授权。需实测你的 Codex 版本。
+它只转发已支持的单次审批、非敏感问题和完成通知，不绕过沙箱，不提供会话级无限授权。需实测你的 Codex 版本。Codex 0.154.0 的原生结构化问题需使用 `donerelay codex --plan`；该模式用于规划，不执行操作。
 
 微信使用腾讯公开客户端协议。需要单独授权设置 WEIXIN_BOT_TOKEN 与 WEIXIN_USER_ID，先私聊建立上下文。没有扫码登录向导，也不会读取其他应用的凭证。长时间不互动后的发送、账号资格和会话过期必须实测。详见 [微信说明](docs/WEIXIN.md)。
 

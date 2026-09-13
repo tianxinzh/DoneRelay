@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DoneRelay — Reply from Telegram. Keep your task moving.</title>
+<meta name="description" content="Self-hosted Telegram notifications, questions, and bounded remote approvals for coding agents. Open-source Node.js bridge for Codex, Claude Code, and other integrated workflows.">
+<link rel="icon" href="assets/donerelay-logo.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:light;--ink:#173d34;--paper:#f6f4ed;--accent:#d3f0a2}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:18px/1.6 system-ui,sans-serif}main,header,footer{max-width:1080px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;gap:20px}a{color:inherit;text-underline-offset:4px}a:focus-visible{outline:3px solid #965017;outline-offset:5px}.brand{display:flex;align-items:center;gap:12px;font-weight:750;text-decoration:none}.brand img{width:38px;height:38px}.badge{font-size:14px;letter-spacing:.07em;text-transform:uppercase}h1{font-size:clamp(40px,6vw,76px);line-height:1.08;letter-spacing:-.055em;max-width:940px;margin:30px 0}h2{font-size:30px;line-height:1.2;letter-spacing:-.025em}p{max-width:760px}.lead{font-size:24px;max-width:750px}.actions{display:flex;gap:14px;flex-wrap:wrap;margin:28px 0}.button{display:inline-block;border:1px solid var(--ink);border-radius:8px;padding:12px 20px;text-decoration:none;font-weight:650}.primary{background:var(--ink);color:var(--paper)}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;border-top:1px solid #b4c4b8;padding-top:30px;margin:60px 0}.number{font-size:14px;font-weight:750}.steps h2{font-size:24px}.panel{padding:28px;border-radius:14px;background:#e7eddf;margin:30px 0}.demo{width:100%;height:auto;border-radius:12px}figcaption,.small,footer{font-size:15px}figure{margin:38px 0}code{font-size:.9em;overflow-wrap:anywhere}footer{border-top:1px solid #b4c4b8;display:flex;gap:20px;flex-wrap:wrap}footer span{margin-right:auto}@media(max-width:650px){.steps{grid-template-columns:1fr;gap:12px;margin:40px 0}header,main,footer{padding:22px}.lead{font-size:21px}}
+</style>
+</head>
+<body>
+<header><a class="brand" href="./"><img src="assets/donerelay-logo.svg" alt="">DoneRelay</a><a href="https://github.com/tianxinzh/DoneRelay">GitHub ↗</a></header>
+<main>
+<div class="badge">Open source · Self hosted · Early Telegram preview</div>
+<h1>Your coding agent is waiting for a decision.</h1>
+<p class="lead">Reply from Telegram and keep the task moving.</p>
+<p>Receive a completion update, answer a question, or approve one exact operation from your phone. DoneRelay connects your private chat to a still-running, integrated agent workflow.</p>
+<div class="actions"><a class="button primary" href="https://github.com/tianxinzh/DoneRelay#quick-start-telegram-bridge">Set up the bridge</a><a class="button" href="https://github.com/tianxinzh/DoneRelay/blob/main/docs/LAUNCH.md">Read tested scope &amp; open gates</a></div>
+<p class="small">Node.js 22+ · Portable Codex and Claude Code skill · Experimental native Codex runner</p>
+<section class="steps" aria-label="How it works">
+<div><span class="number">01 / CONNECT</span><h2>Run your bridge.</h2><p>Keep messaging credentials on your own host. Give your agent only a private bridge connection.</p></div>
+<div><span class="number">02 / DECIDE</span><h2>Read the exact request.</h2><p>Answer with its numbered command, approve once, or deny. Native host permissions still apply.</p></div>
+<div><span class="number">03 / CONTINUE</span><h2>Keep the same caller waiting.</h2><p>The workflow reads the result before acting. Silence, expiry, and a stopped session grant no approval.</p></div>
+</section>
+<figure><img class="demo" src="assets/donerelay-checkout-demo-poster.png" alt="Illustrated checkout example showing a staging approval request and a task completion update" loading="lazy"><figcaption>Illustrated scenario, not a live account recording. <a href="assets/donerelay-checkout-demo.gif">View the illustrated animation</a>. A real phone workflow recording is still a launch gate.</figcaption></figure>
+<section class="panel"><h2>Help test the first Telegram release.</h2><p>Run one harmless task. Receive a message, answer a question, then tell us where setup got confusing. We’re aiming for three testers to complete setup independently and return for a second use.</p><a class="button" href="https://github.com/tianxinzh/DoneRelay/issues/new?template=bug_report.md">Report your setup experience</a></section>
+<h2>Know the current boundaries.</h2><p>The bridge needs to stay running. Pending requests are cancelled after a restart. A skill does not take over unrelated terminals or bypass permissions.</p><p>WhatsApp Cloud API is experimental and requires business setup, a signed HTTPS webhook, START opt-in, and an active 24-hour reply window. There is no approved-template fallback. Weixin remains experimental. No official marketplace acceptance or Codex Cloud compatibility is claimed.</p>
+</main>
+<footer><span>DoneRelay · Independent project · MIT</span><a href="https://github.com/tianxinzh/DoneRelay/blob/main/PRIVACY.md">Privacy</a><a href="https://github.com/tianxinzh/DoneRelay/blob/main/TERMS.md">Terms</a><a href="https://github.com/tianxinzh/DoneRelay/issues">Support</a></footer>
+</body></html>

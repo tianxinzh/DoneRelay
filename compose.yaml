@@ -3,7 +3,7 @@ services:
     build: .
     init: true
     stop_grace_period: 60s
-    env_file: .env
+    env_file: ${DONERELAY_ENV_FILE:?Set DONERELAY_ENV_FILE to your private bridge.env outside the workspace}
     environment:
       HOST: 0.0.0.0
       PORT: 8787
