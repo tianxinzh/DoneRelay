@@ -36,7 +36,7 @@ Run it in your own terminal. The plugin includes the same runtime as the Codex s
 
 After installing either host integration, ask: “Use DoneRelay to send the task result to my own Slack DM through my existing Slack connection.” Skip Telegram pairing, `start`, and local `doctor` for this route; an unconfigured Telegram service is not a Slack failure.
 
-The skill inspects the host's actual Slack tools, verifies the current human/workspace and self-DM, and sends through that same connection. The standalone CLI cannot inherit a host's MCP connection. If the connection or necessary identity/DM/write capability is missing, enable it through that host; do not supply Slack tokens to DoneRelay. Multiple connected workspaces require a selection. Only self notifications are supported; see [Slack details](SLACK.md).
+The skill inspects the host's actual Slack tools, verifies the current human/workspace and self-DM, and sends through that same connection. The standalone CLI cannot inherit a host's MCP connection. If the connection or necessary identity/DM/write capability is missing, enable it through that host; do not supply Slack tokens to DoneRelay. Multiple connected workspaces require a selection. Thread answers and explicit approve/deny decisions also require complete raw thread reads; see [Slack details](SLACK.md).
 
 ## Pair Telegram once
 

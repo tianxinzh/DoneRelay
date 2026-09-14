@@ -29,7 +29,7 @@ test('Slack refuses other people, group DMs, channels, incomplete membership and
   }
   assert.throws(()=>prepareSlackNotification({...input(),recipient:'U999'}),/connected user/);
 });
-test('Slack is notifications-only and never silently fans out or requests approval', () => {
+test('stateless Slack preparation accepts notifications only and never silently fans out', () => {
   for(const kind of ['question','approval','approved','answer']) assert.throws(()=>prepareSlackNotification({...input(),kind}),/notifications only/);
   assert.throws(()=>prepareSlackNotification({...input(),channels:['slack','telegram']}),/fan out/);
   assert.equal(prepareSlackNotification({...input(),channels:['slack']}).status,'prepared');

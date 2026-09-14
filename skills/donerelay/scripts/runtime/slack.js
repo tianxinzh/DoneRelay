@@ -12,7 +12,7 @@ const escapeSlack = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt
 
 export function prepareSlackNotification(input) {
   check(input && typeof input === 'object' && !Array.isArray(input), 'Expected a Slack notification object.');
-  check((input.kind ?? 'notification') === 'notification', 'Slack MCP currently supports self-DM notifications only; questions and approvals require a supported reply channel.');
+  check((input.kind ?? 'notification') === 'notification', 'slack prepare handles notifications only; use slack create for session-bound questions and approvals.');
   check(input.recipient === undefined || input.recipient === 'self', 'Slack notifications can only target the connected user.');
   check(input.channels === undefined || (Array.isArray(input.channels) && input.channels.length === 1 && input.channels[0] === 'slack'), 'Prepare Slack delivery separately; do not silently switch or fan out channels.');
   const connectionId = text(input.connectionId, 'connectionId', 160);
@@ -38,7 +38,7 @@ export function prepareSlackNotification(input) {
   };
 }
 export function slackReceipt(prepared, receipt) {
-  check(prepared?.status === 'prepared' && prepared.transport === 'host_slack_mcp' && prepared.kind === 'notification' &&
+  check(prepared?.status === 'prepared' && prepared.transport === 'host_slack_mcp' && ['notification', 'question', 'approval'].includes(prepared.kind) &&
     userId(prepared.userId) && teamId(prepared.workspaceId) && dmId(prepared.channelId), 'Expected a prepared Slack notification.');
   // Success is accepted only from the same connection, workspace and exact DM, with a real message timestamp.
   check(receipt?.connectionId === prepared.connectionId && receipt.workspaceId === prepared.workspaceId,
@@ -46,9 +46,22 @@ export function slackReceipt(prepared, receipt) {
   if (receipt.ok === false) return { status: 'failed', channel: 'slack', error: 'Slack rejected the send. Check the existing connection permissions; do not switch recipients.' };
   check(receipt.ok === true && receipt.channelId === prepared.channelId && typeof receipt.ts === 'string' && /^\d+\.\d{6}$/.test(receipt.ts),
     'Slack delivery is unconfirmed. Inspect the self-DM before retrying; do not assume the send failed.');
-  return { status: 'sent', kind: 'notification', channel: 'slack', workspaceId: prepared.workspaceId,
+  return { status: 'sent', kind: prepared.kind, channel: 'slack', workspaceId: prepared.workspaceId,
     userId: prepared.userId, providerChatId: prepared.channelId, providerMessageId: receipt.ts,
     evidence: 'host_reported_mcp_receipt' };
+}
+
+export function prepareSlackRequest(input, { id, createdAt, expiresAt }) {
+  check(['question', 'approval'].includes(input?.kind), 'Slack requests must be questions or approvals.');
+  check(input.capabilities?.readThread === true && input.capabilities?.rawMessages === true,
+    'Slack replies require complete thread reads with original message, author and message metadata.');
+  const prepared = prepareSlackNotification({ ...input, kind: 'notification' });
+  const w = words(prepared.language);
+  const hint = prepared.language === 'zh'
+    ? (input.kind === 'approval' ? '请在本条消息的讨论串中回复“批准”或“拒绝”。' : '请在本条消息的讨论串中填写你的答案。')
+    : (input.kind === 'approval' ? 'Reply in this message’s thread with approve or deny.' : 'Reply in this message’s thread with your answer.');
+  prepared.message.text = escapeSlack(`DoneRelay | ${w[input.kind]}\n${w.task}: ${input.task}\n${w.request}: ${id}\n\n${input.message}\n\n${w.expires}: ${new Date(expiresAt).toISOString()}\n${hint}`);
+  return { ...prepared, kind: input.kind, id, createdAt, expiresAt };
 }
 
 // Embedders can bind these callbacks to their already authenticated host MCP tools.

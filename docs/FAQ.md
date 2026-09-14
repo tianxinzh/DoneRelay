@@ -2,7 +2,7 @@
 
 ## Can I reuse the Slack connection already in Codex or Claude?
 
-Yes, for notifications to your own Slack DM when that connection exposes the needed identity, conversation and write tools. No new Slack credentials or service are required. Slack-only use skips Telegram setup. Questions and approvals still use the supported Telegram workflow. See [Slack](SLACK.md).
+Yes, for notifications to your own Slack DM when that connection exposes the needed identity, conversation and write tools. No new Slack credentials or service are required. Slack-only use skips Telegram setup. Questions and explicit approve/deny decisions also work through the host-mediated thread workflow when complete raw thread reads are available. Live Slack validation remains pending. See [Slack](SLACK.md).
 
 ## Do I need a separate bridge or server?
 

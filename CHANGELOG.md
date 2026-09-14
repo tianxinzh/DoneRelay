@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.8
+
+- Add Slack self-DM thread questions and explicit approve/deny decisions through existing host MCP tools.
+- Bind each decision to a workflow, unchanged proposal, verified sender and original thread, with expiry and atomic single-use consumption.
+- Require complete raw thread history; reject edited proposals, automation markers, wrong senders and ambiguous replies. Preserve native permissions.
+- Document live Slack validation as blocked until a capable connection is available.
+
+
 ## 0.1.0-alpha.7
 
 - Reuse existing host Slack MCP connections for notifications to the authenticated user's own DM.

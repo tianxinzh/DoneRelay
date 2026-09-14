@@ -7,7 +7,7 @@
     {
       "name": "donerelay",
       "source": "./",
-      "description": "Reuse your existing Slack MCP for self notifications, plus local Telegram questions and bounded approvals. One Codex/Claude bundle; experimental WeChat support.",
+      "description": "Reuse your existing Slack MCP for self notifications and thread decisions, plus local Telegram questions and bounded approvals. One Codex/Claude bundle; experimental WeChat support.",
       "category": "development",
       "homepage": "https://github.com/tianxinzh/DoneRelay",
       "keywords": [

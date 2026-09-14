@@ -10,4 +10,4 @@ Validate the complete local install on the intended OS and both actual agent hos
 
 Telegram is the initial beta scope. WhatsApp and Weixin remain experimental until account setup, reply handling and idle delivery pass live validation. No separate hosting feature or remote MCP service is planned for this bundle.
 
-Slack self notifications reuse an existing host MCP connection. The skill verifies authenticated identity and the self-DM and invokes that host's tools; it does not copy credentials or start another connection. This route skips the local Telegram service. Slack reply/approval handling is outside the implemented notification scope.
+Slack self notifications reuse an existing host MCP connection. The skill verifies authenticated identity and the self-DM and invokes that host's tools; it does not copy credentials or start another connection. This route skips the local Telegram service. Slack thread questions and explicit decisions use the existing connection’s complete raw thread reads, private workflow records and single-use consumption. Live Slack acceptance remains blocked by the unavailable connection.

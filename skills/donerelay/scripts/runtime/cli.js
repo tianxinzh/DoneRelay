@@ -9,8 +9,10 @@ import { doctor } from './doctor.js';
 import { ensureLocal, localStatus, stopLocal, uninstallLocal, localDoctor } from './local.js';
 import { setup } from './setup.js';
 import { prepareSlackNotification, slackReceipt } from './slack.js';
+import { slackRequestCommand } from './slack-requests.js';
 const HELP = `DoneRelay ${VERSION}
   donerelay slack prepare             Validate/render a self-DM notification from host MCP context (stdin JSON)
+  donerelay slack open|create|sent|ingest|get|take|cancel|close  Manage host-mediated thread decisions (stdin JSON)
   donerelay slack receipt             Validate a host-reported send result (stdin JSON)
   donerelay setup [--language en|zh|auto]  Pair Telegram privately in your terminal
   donerelay start                     Start or reuse the bundled local service
@@ -48,12 +50,12 @@ try {
   if (values.version) console.log(VERSION);
   else if (values.help || !command) console.log(HELP);
   else if (command === 'slack') {
-    check(['prepare', 'receipt'].includes(id), 'Use slack prepare or slack receipt; the host uses its existing Slack MCP tools to send.');
-    const raw = fs.readFileSync(0, 'utf8'); check(Buffer.byteLength(raw) <= 16384, 'Input too large');
+    check(['prepare', 'receipt', 'open', 'create', 'sent', 'ingest', 'get', 'take', 'cancel', 'close'].includes(id), 'Unknown Slack command; use --help.');
+    const raw = fs.readFileSync(0, 'utf8'); check(Buffer.byteLength(raw) <= 262144, 'Input too large');
     const input = JSON.parse(raw);
-    const result = id === 'prepare' ? prepareSlackNotification({ ...input, ...(values.language === undefined ? {} : { language: values.language }) }) : slackReceipt(input.prepared, input.receipt);
+    const result = id === 'prepare' ? prepareSlackNotification({ ...input, ...(values.language === undefined ? {} : { language: values.language }) }) : id === 'receipt' ? slackReceipt(input.prepared, input.receipt) : await slackRequestCommand(id, { ...input, ...(values.language === undefined ? {} : { language: values.language }) });
     console.log(JSON.stringify(result, null, 2));
-    if (result.status === 'failed') process.exitCode = 2;
+    if (['denied', 'expired', 'cancelled', 'failed'].includes(result.status)) process.exitCode = 2;
   }
   else if (command === 'setup') console.log(JSON.stringify(await setup({ fromEnv: values['from-env'], language: values.language }), null, 2));
   else if (command === 'status') console.log(JSON.stringify(await localStatus(), null, 2));

@@ -1,8 +1,8 @@
 {
   "name": "donerelay",
   "displayName": "DoneRelay",
-  "version": "0.1.0-alpha.7",
-  "description": "Slack self-DM notifications through your existing MCP connection, plus Telegram questions and approvals in one local Codex/Claude bundle; experimental WeChat support.",
+  "version": "0.1.0-alpha.8",
+  "description": "Slack self-DM notifications and thread decisions through your existing MCP connection, plus Telegram questions and approvals in one local Codex/Claude bundle; experimental WeChat support.",
   "author": {
     "name": "DoneRelay contributors",
     "url": "https://github.com/tianxinzh/DoneRelay"

@@ -2,11 +2,11 @@
 
 编码 Agent 正在等待你的决定。在 Telegram 回复，让同一个任务继续。
 
-DoneRelay 是供 Codex 和 Claude Code 使用的**本地一体化工具包**。技能、Telegram 集成、请求存储和后台服务一起安装，运行在 Agent 所在的同一台电脑上。Slack 通知复用宿主现有的 MCP 连接；Telegram 首次私下配对机器人后，技能会按需自动启动服务。正常安装无需独立服务器、Docker、桥接地址或手动生成 API 令牌。
+DoneRelay 是供 Codex 和 Claude Code 使用的**本地一体化工具包**。技能、Telegram 集成、请求存储和后台服务一起安装，运行在 Agent 所在的同一台电脑上。Slack 通知、问题回复和明确审批复用宿主现有的 MCP 连接；Telegram 首次私下配对机器人后，技能会按需自动启动服务。正常安装无需独立服务器、Docker、桥接地址或手动生成 API 令牌。
 
 [安装说明](docs/INSTALLATION.md) · [验证记录](docs/LAUNCH.md) · [English](README.md)
 
-当前源码候选版本：`0.1.0-alpha.7`。首发范围为 Telegram。WhatsApp 和微信仍是开发预览。未宣称发布 npm、获得官方目录收录或支持托管 Agent 环境。
+当前源码候选版本：`0.1.0-alpha.8`。首发范围为 Telegram。WhatsApp 和微信仍是开发预览。未宣称发布 npm、获得官方目录收录或支持托管 Agent 环境。
 
 ## 安装到 Codex
 
@@ -50,7 +50,7 @@ node ~/.agents/skills/donerelay/scripts/relay.mjs setup --language zh
 
 仅使用 Slack 时，可以跳过 Telegram 配对和本地服务。技能通过宿主现有工具验证当前用户、工作区和自己的私聊，再使用同一连接发送；无需新的令牌、机器人或 MCP 服务。缺少身份、私聊查询或发送能力时会明确报告，不猜测收件人，也不改发给同事或频道。
 
-当前 Slack 支持结果通知，不支持问题回复、审批或原生权限转发。发送成功不代表手机一定收到推送。本次环境没有可用 Slack MCP 连接，真实投递仍待验证。详见 [Slack 说明](docs/SLACK.md)。
+Slack 支持结果通知、原消息讨论串中的问题回复，以及“批准”或“拒绝”明确决策。连接必须能读取完整原始讨论串；审批绑定当前运行流程，只能消费一次，宿主原生权限仍然有效。发送成功不代表手机一定收到推送。本次环境没有可用 Slack MCP 连接，真实投递仍待验证。详见 [Slack 说明](docs/SLACK.md)。
 
 ## 日常使用
 
