@@ -18,7 +18,7 @@ Those releases used the older standalone-service installation. Their deployment 
 
 ## Remaining release gates
 
-- Complete a native Codex question-resumption run through the local bundle on the exact release commit.
+- Repeat the native acceptance scenarios when making further runtime changes; the alpha.6 native question/resumption run below passed.
 - Record guided first-time pairing and real phone replies in the complete local install. A fixture or terminal-only test is not a phone recording.
 - Verify provider-origin duplicate replies and an unauthorized sender using a second controlled account.
 - Test macOS and Windows independently before marking them verified. Linux checks do not establish those results.
@@ -33,12 +33,12 @@ The public site and GitHub metadata are distribution surfaces, not validation ev
 
 Implementation introduced in `84f7c5c` (PR #6), with follow-up doctor guidance/coverage and this evidence record. Host: AlmaLinux 10.2; Node 22.23.1 and 24.21.0; Codex 0.154.0; Claude Code 2.1.261.
 
-- 86 automated tests pass on Node 22 and 24, including 12 local lifecycle/setup checks. Provider calls in this suite are simulated.
+- 86 automated tests pass on Node 22 and 24 and in an isolated read-only Linux container, including 12 local lifecycle/setup checks. Provider calls in this suite are simulated.
 - Installed npm artifact and complete copied-skill checks pass on both Node versions, without repository-only dependencies or manual connection exports.
 - Actual Claude strict marketplace and plugin validators pass. A fresh isolated configuration installs and enables alpha.6.
 - Actual Codex App Server discovers the complete copied skill in a fresh project with no discovery errors.
 - A real PTY setup run with a simulated provider verifies private pairing, generated settings and hidden token input. This test found and fixed a terminal-echo race; it is not a real first-time Telegram pairing recording.
 - The existing bot configuration was imported privately into the local bundle on the same machine after the old standalone process stopped. The local service and live Telegram account doctor pass. Both installed host helpers retrieve preferences without connection exports.
-- A fresh actual Codex native plan question reached Telegram through the locally bundled service. Its phone-answer/resumption result remains pending until recorded separately; do not infer success from delivery.
+- Actual Codex native plan question/resumption PASSED: the owner replied directly in Telegram; the stored message provenance matched; the same running native thread completed and its completion notification was accepted by Telegram at 2026-09-14 05:18:32 UTC. The test used runtime source `84f7c5c`; subsequent changes in PR #6 only added doctor guidance/coverage and documentation. PR #6 merged as `3d29a557cf5ee6ac2c4e7aca39aeca98725e27ea`.
 
 Private evidence includes sanitized test logs, wizard results, host discovery, local doctor output and native question status. No credentials, private provider IDs or task traces are committed.
