@@ -1,68 +1,80 @@
-# Install DoneRelay in Codex or Claude Code
+# Install the complete local DoneRelay bundle
 
-This guide installs the skill client. First configure the separate bridge using the [README](../README.md). Node.js 22+ is required on the host running the bundled client. Keep provider credentials on the bridge; the agent receives only `DONERELAY_URL` and a privately configured `DONERELAY_API_TOKEN`.
+DoneRelay and your coding agent run on the same computer, under the same OS user. The skill contains the runtime; no separate server, Docker deployment, bridge URL, or manual API-token setup is needed. Node.js 22+ and an authenticated Codex or Claude Code installation are prerequisites. Linux is validated separately from macOS and Windows; see [launch evidence](LAUNCH.md).
 
-## Codex: Telegram task notifications
+## Codex
 
-From the cloned repository root:
+From a clone of this repository:
 
 ```sh
 mkdir -p ~/.agents/skills
 cp -R skills/donerelay ~/.agents/skills/
+node ~/.agents/skills/donerelay/scripts/relay.mjs setup
 ```
 
-Reload the host as required by your installed version. Ask: “Use $donerelay to notify me when this harmless test task finishes.” For a question: “Use $donerelay to ask whether the test example should use SQLite; wait for my direct Telegram reply.” A successful answer must be `answered`, not permission to run unrelated commands.
+Copy the **whole directory**, including `scripts/runtime`. The runtime includes its own module metadata, so it works outside the repository. Restart/reload Codex. Repository-scoped installs may instead use `.agents/skills/donerelay`; both locations use the same per-user local setup.
 
-A repo-scoped installation can instead put the skill in that project's `.agents/skills/`. See the [official skills guide](https://developers.openai.com/codex/skills/). The included root `plugin.json` and `.agents/plugins/marketplace.json` are a separate local plugin packaging option described by [OpenAI](https://developers.openai.com/plugins/build/plugins), not a public directory listing.
+Ask: “Use $donerelay to ask one harmless question and wait for my direct Telegram reply.”
 
-## Claude Code: Telegram notifications and questions
-
-In Claude Code:
+## Claude Code
 
 ```text
 /plugin marketplace add tianxinzh/DoneRelay
 /plugin install donerelay@donerelay-plugins
 ```
 
-Then invoke `/donerelay:donerelay` with your explicit request. This is **DoneRelay's self-hosted catalog**. It is not `claude-plugins-official` or a confirmed community entry. See [Claude's marketplace instructions](https://code.claude.com/docs/en/plugin-marketplaces).
-
-For local development, an installed Claude Code CLI can check the package:
+Reload if prompted. Ask `/donerelay:donerelay Help me set up Telegram locally.` The skill resolves its installed path and gives you a terminal command:
 
 ```sh
-claude plugin validate . --strict
+node /absolute/installed/path/to/donerelay/scripts/relay.mjs setup
 ```
 
-A metadata pass does not test a Telegram account or native permissions. DoneRelay is not a native Claude Channels implementation. Existing [Claude Telegram Channels](https://code.claude.com/docs/en/channels) are a separate option for Claude-specific messaging.
+Run it in your own terminal. The plugin includes the same runtime as the Codex skill. Setup completed under the same OS user is reused, so installing both hosts does not require a second bot or second service. This is DoneRelay's own catalog, not an official directory listing.
 
-## Clean-host smoke test
+## Pair once
 
-Use a harmless test project and a private bot. Verify that the skill can locate `scripts/relay.mjs` after installation, create one question, and read back your direct Telegram answer. Try a deny and an expired approval before any consequential operation. Record host version and the exact DoneRelay commit. Do not count a mock-provider test as live messaging acceptance.
+1. Create a dedicated bot with Telegram's @BotFather.
+2. Run `setup` in an interactive terminal. Choose `en`, `zh`, or `auto` and enter the bot token in the hidden prompt.
+3. Open the printed Telegram link in a **private** chat and press Start within three minutes. Setup matches a random one-time challenge and binds that chat/user. It does not ask you to look up account IDs.
+4. Setup verifies the account and absence of a webhook, then stores credentials privately outside the project. It generates internal authentication automatically.
+5. Invoke the skill. It starts the local background service and sends your requested message.
 
-No `.env` or credential value belongs in this guide's examples. A cloud sandbox's localhost is not the bridge on your laptop. Remote deployment needs secure connectivity; do not disable sandboxing or authentication to make a smoke test pass.
+Do not run two consumers for the same bot. Setup does not remove an existing webhook or stop another application. No setup step sends credentials into the model conversation. For controlled automation, `setup --from-env` validates and imports only the Telegram configuration and language; it does not import an external bridge URL/token.
 
-## Common setup failures
+## Check and manage
 
-| Symptom | Check |
+Replace `COMMAND` below with `start`, `status`, `doctor`, `stop`, `uninstall`, or `uninstall --purge`:
+
+```sh
+node /absolute/installed/path/to/donerelay/scripts/relay.mjs COMMAND
+```
+
+`doctor` is read-only: it never polls, sends, starts, or restarts. If the service is stopped, `start` or a skill request starts it. Stop and uninstall refuse while a request or send is pending. Resolve/cancel the request or let it expire first. Uninstall retains settings unless `--purge` is supplied; then remove the Codex skill directory or run `/plugin uninstall donerelay@donerelay-plugins` in Claude. If both hosts use DoneRelay, remove both integrations when fully uninstalling. Keeping an installed integration allows it to start the service again.
+
+No boot/login registration is installed. The next invocation starts the service after reboot or crash; pending requests are cancelled at restart. A stopped or sleeping agent cannot continue from a reply. An unavailable process is reported rather than killed by an unverified PID.
+
+To update, install the new bundle, finish outstanding requests, and run `stop` then `start` using that bundle. Keep both hosts on the same release. A running version mismatch blocks requests without interrupting the existing service. Direct replies to old messages require their saved binding; numbered commands remain available.
+
+## Smoke test
+
+Use a disposable project. Request a completion notification, ask a question, approve one harmless exact operation and deny another. Reply directly to the original question. Check the same caller gets `answered`, not `approved`. Test expiration and duplicate rejection. Record the exact commit, OS, Node and host versions; a passing doctor is not proof of phone delivery.
+
+For native Codex tasks, run the bundled helper with `codex --cwd /path/to/project --prompt "Inspect this project."`. Use `--plan` for structured planning questions. The adapter must own the running thread. Claude currently uses explicit skill requests, not native permission interception.
+
+## Troubleshooting
+
+| Symptom | Action |
 | --- | --- |
-| Skill visible, no message | Bridge running, host network access, configured token, per-channel delivery results |
-| Telegram polling conflict | Another consumer or webhook using the same bot |
-| Reply ignored | Original request message (for direct replies), request ID (for commands), response type, bound private chat/user, expiry |
-| Request cancelled after restart | Expected behavior on main; create a new request if still needed |
-| Cloud agent cannot connect | Network namespace and reachable secure endpoint; Cloud compatibility is not verified |
-| WeChat cannot send after idle time | Conversation context/session may be invalid; do not infer success or approval |
+| Setup requires a terminal | Run the command yourself in an interactive terminal; do not paste a bot token into the conversation |
+| Pairing expires | Open the printed link and press Start in a private chat; check network and other bot consumers |
+| Already configured | Reuse the setup; to replace the bot, finish pending work and use `uninstall --purge`, then `setup` |
+| Service stopped | Invoke the skill or run `start` |
+| Running version differs | Finish pending work, then use the new bundle's `stop` and `start` |
+| Reply ignored | Use the original request message, correct private account and response kind; check expiry |
+| Request cancelled after restart | Expected; make a fresh request if still needed |
+| Stale `control.lock` | Verify its recorded PID is no longer running before removing only that file; never delete a live/unknown lock |
+| Agent ends or computer sleeps | The tool cannot keep that workflow alive or wake the computer |
 
-See [FAQ](FAQ.md), [Weixin setup](WEIXIN.md), and [security](../SECURITY.md).
+Local data defaults to `~/.config/donerelay/local/`. `DONERELAY_HOME` can select an isolated local directory for testing; use the same setting for both hosts if intentionally sharing. This does not enable remote hosting. Owner-only files protect against other users, not processes with your own user permissions.
 
-## Guided setup check
-
-Use a private configuration file outside the project. The bridge file contains messaging credentials; the agent file contains only `DONERELAY_URL` and `DONERELAY_API_TOKEN`. Restrict both to their owner (`chmod 600`). Do not paste credentials into chat or a bug report.
-
-1. Start the bridge following the README. Keep the agent API on loopback port 8787.
-2. On the bridge host, run `node --env-file=/secure/path/bridge.env src/cli.js doctor --bridge`.
-3. On the agent host, run `node --env-file=/secure/path/agent.env src/cli.js doctor` (or the installed `donerelay doctor` with that environment).
-4. Follow the named failing check: configure missing variables, start the service, correct its URL/token, or use matching client/service releases. Exit 0 means every performed check passed; exit 1 requires attention.
-5. Run the harmless question example and read the exact answer in the waiting caller. A health check alone does not prove phone delivery or host permission handling.
-
-The doctor uses read-only health/authentication requests. Bridge mode also checks configured channel formats and Telegram account/private-chat/webhook state. It never changes a webhook, polls replies, creates a request, or prints provider response bodies. It cannot establish that no other bot poller exists. WhatsApp and Weixin checks are local configuration checks, not live account acceptance.
-
-Message language is selected with Telegram `/language`, `DONERELAY_LANGUAGE`, or a request/CLI override. See [language selection](../README.md#choose-a-message-language). The skill reads the saved preference before composing a message; automatic mode lets the agent choose one language from context.
+See [FAQ](FAQ.md), [security](../SECURITY.md), and [developer internals](DEVELOPMENT.md).

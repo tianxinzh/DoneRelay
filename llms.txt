@@ -1,8 +1,8 @@
 # DoneRelay
 
-> Open-source, self-hosted Node.js bridge and agent skill for Telegram task notifications, bounded questions, and single-operation human approvals. Personal WeChat / Weixin is experimental.
+> One local bundle with a complete Node.js runtime and agent skill for Telegram task notifications, bounded questions, and single-operation human approvals. Personal WeChat / Weixin is experimental.
 
-Status: alpha source preview. Requires a separately running bridge and locally configured credentials. Partial real Telegram/Codex acceptance and isolated host installation checks are recorded in docs/LAUNCH.md; remaining launch gates are explicit. No official directory listing, hosted service, npm publication, or Codex Cloud compatibility is claimed. This optional index is not a search-ranking mechanism.
+Status: alpha source preview. Runs alongside Codex or Claude Code; guided private Telegram pairing and automatic local startup are included. No separate server or manual API connection setup. Partial real Telegram/Codex acceptance and isolated host installation checks are recorded in docs/LAUNCH.md; remaining launch gates are explicit. No official directory listing, hosted service, npm publication, or Codex Cloud compatibility is claimed. This optional index is not a search-ranking mechanism.
 
 ## Documentation
 
@@ -13,6 +13,6 @@ Status: alpha source preview. Requires a separately running bridge and locally c
 - [Portable skill](https://github.com/tianxinzh/DoneRelay/blob/main/skills/donerelay/SKILL.md): explicit user-authorized usage.
 - [Weixin setup](https://github.com/tianxinzh/DoneRelay/blob/main/docs/WEIXIN.md): experimental personal-WeChat transport.
 - [Security](https://github.com/tianxinzh/DoneRelay/blob/main/SECURITY.md): trust boundaries and failure behavior.
-- [Privacy](https://github.com/tianxinzh/DoneRelay/blob/main/PRIVACY.md): self-hosted data flow.
+- [Privacy](https://github.com/tianxinzh/DoneRelay/blob/main/PRIVACY.md): locally bundled data flow.
 - [Marketplace research](https://github.com/tianxinzh/DoneRelay/blob/main/docs/MARKETPLACES.md): dated official sources; packaging is not admission.
 - [Submission status](https://github.com/tianxinzh/DoneRelay/blob/main/docs/SUBMISSION.md): draft materials and unresolved release gates.

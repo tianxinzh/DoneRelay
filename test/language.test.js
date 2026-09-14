@@ -10,6 +10,7 @@ import { WhatsApp } from '../src/channels/whatsapp.js';
 import { Client } from '../src/client.js';
 import { makeServer } from '../src/server.js';
 import { resolveLanguage } from '../src/language.js';
+import { configureLocal, localPaths, readPrivate, writePrivate } from '../skills/donerelay/scripts/runtime/local.js';
 import { questionInput } from '../src/adapters/codex.js';
 function setup(t, language='auto') {
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'donerelay-language-'));const store=new Store(path.join(dir,'state.json'));
@@ -89,9 +90,13 @@ test('native Chinese questions keep question scaffolding in Chinese and labels e
 });
 test('CLI override and copied standalone skill honor the same language contract',async t=>{
   const {spawn}=await import('node:child_process');
-  const f=setup(t,'zh');const token='t'.repeat(32);const server=makeServer(f.relay,token);
+  const f=setup(t,'zh');
+  const env={...process.env,DONERELAY_HOME:path.join(path.dirname(f.store.file),'local'),DONERELAY_LANGUAGE:'zh'};
+  await configureLocal({TELEGRAM_BOT_TOKEN:'123:'+ 'fixture'.repeat(5),TELEGRAM_USER_ID:'10',TELEGRAM_CHAT_ID:'10'},env);
+  const paths=localPaths(env);const credentials=readPrivate(paths.connection);
+  const server=makeServer(f.relay,credentials.token,{instanceId:credentials.instanceId});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
-  const env={...process.env,DONERELAY_URL:`http://127.0.0.1:${server.address().port}`,DONERELAY_API_TOKEN:token,DONERELAY_LANGUAGE:'zh'};
+  writePrivate(paths.runtime,{origin:`http://127.0.0.1:${server.address().port}`,instanceId:credentials.instanceId,pid:process.pid});
   const run=(args,body)=>new Promise((resolve,reject)=>{
     const child=spawn(process.execPath,args,{env,stdio:['pipe','pipe','pipe']});let out='',err='';
     child.stdout.on('data',x=>out+=x);child.stderr.on('data',x=>err+=x);child.on('error',reject);
@@ -99,7 +104,7 @@ test('CLI override and copied standalone skill honor the same language contract'
     child.stdin.end(body?JSON.stringify(body):'');
   });
   assert.equal((await run(['src/cli.js','request','--language','en'],{...input,language:'zh'})).language,'en');
-  const copied=path.join(path.dirname(f.store.file),'relay.mjs');fs.copyFileSync('skills/donerelay/scripts/relay.mjs',copied);
+  const bundle=path.join(path.dirname(f.store.file),'copied');fs.cpSync('skills/donerelay',bundle,{recursive:true});const copied=path.join(bundle,'scripts/relay.mjs');
   assert.deepEqual(await run([copied,'preferences']),{language:'zh'});
   assert.equal((await run([copied,'create'],input)).language,'zh');
 });

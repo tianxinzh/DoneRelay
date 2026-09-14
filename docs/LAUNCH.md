@@ -1,77 +1,44 @@
-# Telegram launch record
+# Local bundle launch record
 
-Current candidate: `0.1.0-alpha.5`. The live acceptance record below describes the preceding alpha.3 implementation; language changes are described separately below. Implementation merged in PR #3 at `1d56622379138a6088b1c3b86192713e59216d4c` (source change `3a6da1d0268d42ef4a973a35e0b1dbc82f243261`), based on main `0340275157de8dc3e75540192e9c9bdb43941c44`. This is an early Telegram release candidate, not a claim of marketplace acceptance. Evidence collected on 2026-09-13 UTC on AlmaLinux 10.2, Node.js 22.23.1, Codex CLI 0.154.0, and Claude Code 2.1.261. Provider account identifiers, credentials, and raw native session traces are kept outside this repository.
+Current candidate: `0.1.0-alpha.6`. The authoritative runtime ships inside `skills/donerelay/scripts/runtime/`; `src/` only forwards existing entry points. Main's request schema, durable JSON decisions, and cancellation of pending requests on restart are preserved. The alternative PR #2 implementation remains superseded.
 
-## One implementation
+## Alpha.6 scope
 
-Main's `src/cli.js`, JSON state store, `notification|question|approval` requests, and cancellation of pending requests on restart are authoritative. PR #2 was reviewed and closed as superseded; its SQLite recovery, schemas, OpenClaw transport, and entrypoints are not adopted. Its useful issue/PR templates were adapted, and its pairing/setup idea informed the new read-only doctor. No alternative runtime was merged.
+One environment, one locally installed bundle. Guided private Telegram pairing, generated internal authentication, on-demand detached service startup, shared per-user configuration, status/doctor/stop/uninstall commands, and a copied skill that includes all runtime modules. No separate deployment or manual URL/token configuration is part of the install.
 
-Package metadata, plugin manifests, CLI, health endpoint, and native adapter identify the same release. Install and run the client and bridge from the same release. `doctor` reports version mismatches.
+The lifecycle tests use real local processes and HTTP with a simulated Telegram provider. They are distinct from real phone acceptance. Current validation results are recorded below after execution; an earlier release's success does not certify the new setup flow.
 
-## Verified and pending
+## Historical evidence
 
-| Area | Evidence / status |
-| --- | --- |
-| Automated checks | 53/53 tests passed on Node 22 and 24 after launch changes; installed npm artifact checks passed on both; provider calls in unit tests are simulated |
-| VPS bridge | Actual alpha.3 Docker deployment, non-root process, private persistent state, healthy listener bound to host `127.0.0.1:8787`; messaging secrets outside workspace |
-| Telegram account | Live getMe/getChat succeeded; configured destination is private; no webhook; request sends accepted by Telegram |
-| Phone question round trip | Initial test cancelled by the controlled restart; the subsequent native plan question expired without an answer. A new owner-assisted test is required. |
-| Native completion | Real authenticated Codex adapter completed and sent `DONERELAY_NATIVE_COMPLETION_OK` through Telegram |
-| Native approval | Actual native approval reached Telegram; owner approved; the same adapter created its exact marker and completed |
-| Native expiry | Actual native request expired after 15 seconds; Codex completed without creating the marker file |
-| Native question | Default mode reports tool unavailable; explicit `--plan` mode added. Real native question reached Telegram but expired without an answer. |
-| Native denial | Owner denied through Telegram; same Codex workflow completed with the denied marker absent |
-| Bridge restart | Actual alpha.2 → alpha.3 replacement cancelled both pending questions; approved/denied/expired results retained. One polling caller encountered a connection error and failed closed; no operation was granted |
-| Duplicate / unauthorized | Automated fixtures pass; provider-origin negative acceptance remains pending |
-| Setup doctor | Live agent and bridge checks pass against deployed alpha.3; no secrets printed |
-| Claude validation | `claude plugin validate . --strict` and `.claude-plugin/plugin.json --strict` passed with no warnings |
-| Claude clean install | Fresh isolated CLI configuration added local marketplace, installed alpha.3, and lists it enabled; does not establish an authenticated Claude conversation |
-| Codex clean install | Fresh project skill copy discovered by actual `skills/list`, enabled with no discovery errors; installed standalone client reached the VPS API |
-| WhatsApp / Weixin | Not configured in the deployed bridge; live acceptance blocked on owner-controlled account setup |
-| GitHub CI | Main test run [34790836613](https://github.com/tianxinzh/DoneRelay/actions/runs/34790836613) passed on Node 22/24 at the implementation merge commit |
-| Landing page | [Live GitHub Pages site](https://tianxinzh.github.io/DoneRelay/), deployed from main/docs; HTML, logo and poster returned HTTP 200. About description/topics/homepage applied |
-| Marketplace submissions | Not submitted; no submission IDs or acceptance claims |
+On AlmaLinux 10.2 with Node 22.23.1, Codex 0.154.0 and Claude Code 2.1.261, alpha.3 testing verified native completion, approval, denial, expiration and restart cancellation. The native plan-question test expired unanswered. Actual Claude strict validators and isolated plugin installation passed, and actual Codex discovered the copied skill.
 
-## Decisions and external blockers
+Alpha.4 added one-language messages and saved en/zh/auto preferences. Alpha.5 passed 74 tests on Node 22/24. A real direct Telegram reply reached the same waiting bridge client at 2026-09-14 04:46:14 UTC, with verified reply-to-message provenance. That was not a completed native Codex question-resumption test.
 
-1. **Phone participation:** start and answer a new native plan question in Telegram; the prior question expired. Approval, denial, expiry and controlled restart already have live evidence. Native callers must remain alive for their own replies. A second controlled account is needed for a real unauthorized-sender test; repeat-reply acceptance also needs confirmation.
-2. **Release and real recording:** finish the live Telegram cases before promoting a tested Telegram beta. The existing GIF is illustrated. A real terminal capture of the fresh question is running. A phone-screen recording requires the owner’s phone and review/redaction; it cannot be fabricated from fixtures.
-3. **Initial users:** owner supplies 5–10 developer contacts or chooses approved communities. Do not invent recruits or successful setups. Target three independent setups plus repeat use; record actual outcomes.
-4. **Publisher accounts:** owner supplies reviewed publisher name, support contact, logo choice, and privacy/terms approval; completes identity verification and submission permissions in the target portals. Do not attest on the owner's behalf. No authenticated publisher portal is available in this session. Identity/role checks and final submission remain pending. npm authentication is also not configured on the VPS; no registry publication is claimed.
-5. **WhatsApp:** owner configures Meta app/business phone credentials and signed HTTPS callback. Run START, question/answer, approve/deny, STOP, replay, and idle-window cases. Approved template name/language/content and business approval are required before implementing and validating an out-of-window fallback. Current release explicitly fails outside the window.
-6. **Weixin:** owner supplies authorized bot/session setup. Login, reconnection and hours-idle delivery remain unverified; no QR-login wizard is included. Keep it experimental.
+Those releases used the older standalone-service installation. Their deployment evidence is historical, not the current installation architecture. Provider credentials, private identifiers, and raw native traces remain outside the repository.
 
-## Owner-run phone acceptance
+## Remaining release gates
 
-Each case records exact release SHA, host version, request ID, expected result, observed result, and UTC timestamp in private evidence. Redact personal chat IDs before publishing.
+- Complete a native Codex question-resumption run through the local bundle on the exact release commit.
+- Record guided first-time pairing and real phone replies in the complete local install. A fixture or terminal-only test is not a phone recording.
+- Verify provider-origin duplicate replies and an unauthorized sender using a second controlled account.
+- Test macOS and Windows independently before marking them verified. Linux checks do not establish those results.
+- Recruit 5–10 developers and target at least three independent setups plus repeat use. No tester success is assumed.
+- Review the real screen recording, publisher identity/contact/logo, privacy and terms, then submit through appropriate owner-controlled portals. No submissions or acceptance are claimed.
+- Publish a versioned tested prerelease once the chosen gates are satisfied. npm publication additionally requires publisher authentication.
+- Keep WhatsApp and Weixin experimental until account setup, reply/consent/restart and hours-idle cases pass; WhatsApp still lacks template fallback.
 
-- Question: a numbered answer becomes `answered` in the original waiting caller.
-- Approval: the exact marker command runs once after Approve once; repeat the numbered reply and confirm no second execution.
-- Denial: Deny leaves the marker absent and the native process finishes without retrying.
-- Expiration: no response leaves the marker absent; a later reply cannot approve it.
-- Wrong sender: another controlled account sends the numbered command; state remains pending. Local fixtures are not a substitute for this provider-origin case.
-- Restart: restart only after other active acceptance callers resolve, then use a dedicated pending request. It becomes `cancelled`; the original waiting caller must not execute it.
+The public site and GitHub metadata are distribution surfaces, not validation evidence. See [tester plan](BETA_TESTING.md), [submission packet](SUBMISSION.md), and [development/migration notes](DEVELOPMENT.md).
 
-## Submission evidence and sources
+## Alpha.6 validation — 2026-09-14
 
-The five positive and three negative scenarios in [SUBMISSION.md](SUBMISSION.md) remain the review packet. Attach verified release evidence; mark each case live or simulated. WhatsApp's current limits are included in listing copy.
+Implementation introduced in `84f7c5c` (PR #6), with follow-up doctor guidance/coverage and this evidence record. Host: AlmaLinux 10.2; Node 22.23.1 and 24.21.0; Codex 0.154.0; Claude Code 2.1.261.
 
-Official documentation checked 2026-09-13: [Codex App Server](https://learn.chatgpt.com/docs/app-server), [OpenAI submission](https://developers.openai.com/plugins/deploy/submission), [OpenAI packaging](https://developers.openai.com/plugins/build/plugins), [Claude plugin guide](https://code.claude.com/docs/en/plugins), and [Telegram API](https://core.telegram.org/bots/api). Account eligibility and acceptance must be established in the actual publisher account.
+- 86 automated tests pass on Node 22 and 24, including 12 local lifecycle/setup checks. Provider calls in this suite are simulated.
+- Installed npm artifact and complete copied-skill checks pass on both Node versions, without repository-only dependencies or manual connection exports.
+- Actual Claude strict marketplace and plugin validators pass. A fresh isolated configuration installs and enables alpha.6.
+- Actual Codex App Server discovers the complete copied skill in a fresh project with no discovery errors.
+- A real PTY setup run with a simulated provider verifies private pairing, generated settings and hidden token input. This test found and fixed a terminal-echo race; it is not a real first-time Telegram pairing recording.
+- The existing bot configuration was imported privately into the local bundle on the same machine after the old standalone process stopped. The local service and live Telegram account doctor pass. Both installed host helpers retrieve preferences without connection exports.
+- A fresh actual Codex native plan question reached Telegram through the locally bundled service. Its phone-answer/resumption result remains pending until recorded separately; do not infer success from delivery.
 
-## Release decision
-
-The GitHub prerelease is prepared as a draft while the remaining live phone-answer and provider-origin negative cases are open. It must not be promoted as a fully validated Telegram beta before those gates are completed or the owner explicitly chooses an alpha release with the gaps disclosed. The landing page invites testing but does not claim completed independent-user validation.
-
-## Single-language follow-up — 2026-09-14
-
-Alpha.4 adds saved `/language en|zh|auto` preferences in the bound Telegram chat, per-request/CLI/environment overrides, and an authenticated preferences read endpoint for agents. Request labels, action buttons, numbered reply instructions, and acknowledgements use one language. Exact proposal text and callback IDs are preserved. The agent skill chooses from conversation context in automatic mode; the bridge uses a documented text heuristic if no explicit choice is supplied. Native Codex uses the configured choice or prompt-language fallback.
-
-Language regression checks cover English/Chinese rendering, restart persistence, unauthorized preference changes, request language stability, duplicate replies, idempotency, native question labels, WhatsApp buttons, CLI precedence, and the standalone copied skill client. These checks use simulated provider calls and do not replace the outstanding live acceptance gates above. The preceding unanswered native question expired; it is no longer a waiting caller.
-
-Alpha.4 validation: 62 tests pass on Node 22 and 24; package installation checks and actual Claude strict validation pass. All nine language tests pass in the isolated Docker test environment. PR #4 merged at `056b7a9`; the VPS is running alpha.4 with `auto` as its effective preference and a passing live doctor check. Existing release gates remain open.
-
-## Direct Telegram replies — 2026-09-14
-
-Alpha.5 persists the message/chat/bot binding from a successful Telegram send. New questions use ForceReply and accept plain-text replies; approvals accept only explicit approve/deny replies or buttons. Copied/forwarded targets, mismatched IDs, unknown senders, unconfirmed sends, expiry, cancellation, restart, and duplicate decisions remain fail-closed. Numbered commands remain available for older messages that have no stored binding.
-
-Automated validation adds real-local-HTTP waiting-caller integration plus provider fixtures for matching, conflicting, stale, multilingual, media, and failed-delivery cases. A live phone test is separate from this fixture evidence.
+Private evidence includes sanitized test logs, wizard results, host discovery, local doctor output and native question status. No credentials, private provider IDs or task traces are committed.

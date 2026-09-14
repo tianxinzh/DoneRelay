@@ -1,5 +1,7 @@
 # Experimental personal WeChat / Weixin transport
 
+The Telegram pairing wizard does not configure Weixin. These are [developer adapter notes](DEVELOPMENT.md); run any adapter test in the same local environment as the agent.
+
 Checked against the public Tencent client protocol on 2026-09-12:
 https://github.com/Tencent/openclaw-weixin/blob/main/docs/protocol.md
 

@@ -6,7 +6,7 @@ Checked **2026-09-12** against the primary sources linked below. Status: reposit
 
 | Destination | Actual route | DoneRelay status |
 | --- | --- | --- |
-| Local Codex skill | Copy `skills/donerelay` to a supported skills directory | Packaged; bridge setup remains separate |
+| Local Codex skill | Copy `skills/donerelay` to a supported skills directory | Complete local bundle; guided pairing and automatic startup |
 | OpenAI local plugin | Root `plugin.json` and `.agents/plugins/marketplace.json` | Packaged; host validation pending |
 | OpenAI public directory | Platform plugin submission, review, then publisher-initiated publication | Submission not started |
 | Claude Code self-hosted catalog | Add `tianxinzh/DoneRelay`, install `donerelay@donerelay-plugins` | Actual CLI validation and isolated installation passed; see LAUNCH.md |
@@ -23,9 +23,9 @@ The [OpenAI skills repository](https://github.com/openai/skills) now marks itsel
 
 ### Product fit is the unresolved gate
 
-DoneRelay needs Node.js, a running bridge, secure per-user configuration, and a living caller. It is **not currently a zero-configuration hosted skills-only integration**. The [Claude-to-OpenAI migration guide](https://developers.openai.com/plugins/guides/submit-claude-plugin) requires clean-environment testing without undeclared dependencies; its credentials/persistent-settings guidance points to MCP, and inbound channel requirements need separate discussion.
+DoneRelay includes its service in the skill and runs alongside the agent. It needs Node.js, private first-run pairing, persistent local files and a living caller. It is **not currently a zero-configuration hosted skills-only integration**. The [Claude-to-OpenAI migration guide](https://developers.openai.com/plugins/guides/submit-claude-plugin) requires clean-environment testing without undeclared dependencies; its credentials/persistent-settings guidance points to MCP, and inbound channel requirements need separate discussion.
 
-Our recommendation: first validate the local skill/plugin experience. For a general hosted directory integration, evaluate an authenticated MCP wrapper with explicit request-creation and status tools. A remote MCP submission requires an appropriately authenticated public HTTPS service; a private laptop's loopback address is not sufficient. This is a recommended next design, **not an implemented MCP server**. Never expose the current local bridge unauthenticated or turn an arbitrary client-supplied reply into human authorization.
+The product targets local Codex and Claude Code installations. It does not plan a separately hosted bridge or remote MCP service. Validate that each submission target permits the bundled local process and private configuration; do not claim general hosted-runtime compatibility or change the product into a hosted service to bypass that gate.
 
 ## Claude: community submission versus official selection
 
@@ -53,8 +53,8 @@ The last command requires an installed Claude Code CLI. It passed with no warnin
 
 ## Position against existing options honestly
 
-Claude already documents [Telegram Channels](https://code.claude.com/docs/en/channels), including two-way messaging in a running Claude Code session. DoneRelay should not claim to invent Telegram agent control. Its intended niche is an agent-neutral request API, explicit bounded decisions, a Node-based self-hosted bridge, and experimental WeChat. The current Claude integration is a skill, not native channel/permission interception.
+Claude already documents [Telegram Channels](https://code.claude.com/docs/en/channels), including two-way messaging in a running Claude Code session. DoneRelay should not claim to invent Telegram agent control. Its intended niche is an agent-neutral request API, explicit bounded decisions, a bundled local Node runtime, and experimental WeChat. The current Claude integration is a skill, not native channel/permission interception.
 
 ## Publication order
 
-Validate real Telegram setup and clean-host installation, record a real demonstration, then submit to the Claude community route. Resolve OpenAI hosted-runtime and credential handling before representing that experience as review-ready. Keep WeChat experimental until live idle-session tests pass. Use [submission materials](SUBMISSION.md) and retain evidence tied to the exact reviewed commit. Public availability must be checked after approval; do not advertise a directory install command before the entry exists.
+Validate real Telegram setup and clean-host installation, record a real demonstration, then submit to the Claude community route. Validate the intended local OpenAI host and private credential handling before representing that experience as review-ready. Keep WeChat experimental until live idle-session tests pass. Use [submission materials](SUBMISSION.md) and retain evidence tied to the exact reviewed commit. Public availability must be checked after approval; do not advertise a directory install command before the entry exists.

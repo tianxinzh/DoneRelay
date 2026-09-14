@@ -1,6 +1,6 @@
 interface:
   display_name: "DoneRelay"
   short_description: "Telegram task updates and remote human approvals"
-  default_prompt: "Use $donerelay for task notifications or a bounded human answer through my configured bridge. Never bypass native permissions."
+  default_prompt: "Use $donerelay for task notifications or a bounded human answer through the bundled local service. Never bypass native permissions."
 policy:
   allow_implicit_invocation: false
