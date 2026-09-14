@@ -69,7 +69,11 @@ export class Relay {
     const reply = parseReply(input);
     check(reply, words('en').replyHelp);
     if (reply.action === 'answer') text(reply.answer, 'answer', 2000);
-    return this.store.decide(reply.id, reply.action, reply.answer, { channel, userId: String(actor.userId) });
+    const resolvedBy = { channel, userId: String(actor.userId) };
+    if (channel === 'telegram' && Number.isSafeInteger(actor.replyToMessageId) && actor.replyToMessageId > 0) {
+      resolvedBy.telegramReplyToMessageId = String(actor.replyToMessageId);
+    }
+    return this.store.decide(reply.id, reply.action, reply.answer, resolvedBy);
   }
   cancel(id) {
     const r = this.store.get(id);

@@ -34,6 +34,7 @@ test('a direct plain-text Telegram answer reaches the same waiting HTTP caller',
   assert.equal(f.sent[0].body.reply_markup.input_field_placeholder,'Type your answer');
   const waiting=client.wait(r.id);await f.telegram.handle(f.reply(r,'BLUE'));
   const result=await waiting;assert.equal(result.id,r.id);assert.equal(result.status,'answered');assert.equal(result.answer,'BLUE');
+  assert.equal(result.resolvedBy.telegramReplyToMessageId,r.deliveries.telegram.providerMessageId);
 });
 test('questions preserve multiline text and command-looking answers cannot approve an operation',async t=>{
   const f=setup(t);const question=await f.request();const approval=await f.request('approval');

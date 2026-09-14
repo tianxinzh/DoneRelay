@@ -90,6 +90,7 @@ export class Telegram {
         const request = this.repliedRequest(m);
         language = request.language ?? resolveLanguage('auto', request.message);
         input = this.directInput(request, input);
+        actor.replyToMessageId = m.reply_to_message.message_id;
       }
       const r = this.relay.receive('telegram', input, actor); ack = `${r.id}: ${words(r.language ?? language)[r.status]}`;
     }
