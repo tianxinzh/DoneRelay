@@ -2,11 +2,11 @@
 
 编码 Agent 正在等待你的决定。在 Telegram 回复，让同一个任务继续。
 
-DoneRelay 是供 Codex 和 Claude Code 使用的**本地一体化工具包**。技能、Telegram 集成、请求存储和后台服务一起安装，运行在 Agent 所在的同一台电脑上。首次私下配对机器人后，技能会按需自动启动服务。正常安装无需独立服务器、Docker、桥接地址或手动生成 API 令牌。
+DoneRelay 是供 Codex 和 Claude Code 使用的**本地一体化工具包**。技能、Telegram 集成、请求存储和后台服务一起安装，运行在 Agent 所在的同一台电脑上。Slack 通知复用宿主现有的 MCP 连接；Telegram 首次私下配对机器人后，技能会按需自动启动服务。正常安装无需独立服务器、Docker、桥接地址或手动生成 API 令牌。
 
 [安装说明](docs/INSTALLATION.md) · [验证记录](docs/LAUNCH.md) · [English](README.md)
 
-当前源码候选版本：`0.1.0-alpha.6`。首发范围为 Telegram。WhatsApp 和微信仍是开发预览。未宣称发布 npm、获得官方目录收录或支持托管 Agent 环境。
+当前源码候选版本：`0.1.0-alpha.7`。首发范围为 Telegram。WhatsApp 和微信仍是开发预览。未宣称发布 npm、获得官方目录收录或支持托管 Agent 环境。
 
 ## 安装到 Codex
 
@@ -17,6 +17,11 @@ git clone https://github.com/tianxinzh/DoneRelay.git
 cd DoneRelay
 mkdir -p ~/.agents/skills
 cp -R skills/donerelay ~/.agents/skills/
+```
+
+使用 Telegram 时再运行：
+
+```sh
 node ~/.agents/skills/donerelay/scripts/relay.mjs setup --language zh
 ```
 
@@ -36,6 +41,16 @@ node ~/.agents/skills/donerelay/scripts/relay.mjs setup --language zh
 ```
 
 按提示重新加载插件，再让 `/donerelay:donerelay` 帮助设置本机 Telegram。技能会提供包含实际安装路径的 `node .../scripts/relay.mjs setup` 命令。请在自己的交互式终端中运行。同一系统用户已在 Codex 配对的配置会自动复用，不需要第二个机器人或服务。这是项目自己的插件目录。
+
+## 复用现有 Slack 连接
+
+如果 Codex 或 Claude Code 已连接 Slack MCP，可直接要求：
+
+> 使用 DoneRelay，通过我现有的 Slack 连接，把任务结果发到我自己的私聊。
+
+仅使用 Slack 时，可以跳过 Telegram 配对和本地服务。技能通过宿主现有工具验证当前用户、工作区和自己的私聊，再使用同一连接发送；无需新的令牌、机器人或 MCP 服务。缺少身份、私聊查询或发送能力时会明确报告，不猜测收件人，也不改发给同事或频道。
+
+当前 Slack 支持结果通知，不支持问题回复、审批或原生权限转发。发送成功不代表手机一定收到推送。本次环境没有可用 Slack MCP 连接，真实投递仍待验证。详见 [Slack 说明](docs/SLACK.md)。
 
 ## 日常使用
 

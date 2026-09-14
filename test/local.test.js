@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
+import { VERSION } from '../skills/donerelay/scripts/runtime/version.js';
 import { configureLocal, ensureLocal, localStatus, stopLocal, uninstallLocal, localPaths, readPrivate, writePrivate } from '../skills/donerelay/scripts/runtime/local.js';
 import { validateTelegram } from '../skills/donerelay/scripts/runtime/setup.js';
 const config = { TELEGRAM_BOT_TOKEN: '123:' + 'fixture'.repeat(5), TELEGRAM_USER_ID: '10', TELEGRAM_CHAT_ID: '10', DONERELAY_LANGUAGE: 'en' };
@@ -33,7 +34,7 @@ test('setup creates owner-only local secrets and no public URL; invalid and repe
   assert.equal(credentials.token.length, 64); assert.equal(credentials.instanceId.length, 32);
   assert.equal(fs.statSync(f.paths.config).mode & 0o777, 0o600);
   assert.equal(fs.statSync(f.paths.home).mode & 0o777, 0o700);
-  assert.deepEqual(await localStatus(f.env), { configured: true, running: false, version: '0.1.0-alpha.6' });
+  assert.deepEqual(await localStatus(f.env), { configured: true, running: false, version: VERSION });
   await assert.rejects(configureLocal(config, f.env), /already configured/);
   await assert.rejects(configureLocal({ ...config, TELEGRAM_CHAT_ID: '20' }, { DONERELAY_HOME: path.join(f.dir,'invalid') }), /private chat/);
 });

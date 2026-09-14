@@ -1,5 +1,9 @@
 # DoneRelay FAQ
 
+## Can I reuse the Slack connection already in Codex or Claude?
+
+Yes, for notifications to your own Slack DM when that connection exposes the needed identity, conversation and write tools. No new Slack credentials or service are required. Slack-only use skips Telegram setup. Questions and approvals still use the supported Telegram workflow. See [Slack](SLACK.md).
+
 ## Do I need a separate bridge or server?
 
 No. The skill contains the complete Node runtime and starts its own local background service when needed. Codex or Claude Code and DoneRelay run in the same environment. The local service performs Telegram polling and request tracking; users do not configure an API URL or internal token.

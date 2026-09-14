@@ -9,3 +9,5 @@ Keep bounded approvals, sender/provenance validation, expiration, single-use dec
 Validate the complete local install on the intended OS and both actual agent hosts, then capture a real phone-and-agent recording and recruit initial testers. Track independent successful setups and repeat use. Keep external publisher requirements in [submission materials](SUBMISSION.md), not in the installation flow.
 
 Telegram is the initial beta scope. WhatsApp and Weixin remain experimental until account setup, reply handling and idle delivery pass live validation. No separate hosting feature or remote MCP service is planned for this bundle.
+
+Slack self notifications reuse an existing host MCP connection. The skill verifies authenticated identity and the self-DM and invokes that host's tools; it does not copy credentials or start another connection. This route skips the local Telegram service. Slack reply/approval handling is outside the implemented notification scope.

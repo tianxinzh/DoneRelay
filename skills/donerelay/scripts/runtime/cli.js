@@ -8,7 +8,10 @@ import { VERSION } from './version.js';
 import { doctor } from './doctor.js';
 import { ensureLocal, localStatus, stopLocal, uninstallLocal, localDoctor } from './local.js';
 import { setup } from './setup.js';
+import { prepareSlackNotification, slackReceipt } from './slack.js';
 const HELP = `DoneRelay ${VERSION}
+  donerelay slack prepare             Validate/render a self-DM notification from host MCP context (stdin JSON)
+  donerelay slack receipt             Validate a host-reported send result (stdin JSON)
   donerelay setup [--language en|zh|auto]  Pair Telegram privately in your terminal
   donerelay start                     Start or reuse the bundled local service
   donerelay status                    Show local service status without secrets
@@ -44,6 +47,14 @@ try {
   const [command, id] = positionals;
   if (values.version) console.log(VERSION);
   else if (values.help || !command) console.log(HELP);
+  else if (command === 'slack') {
+    check(['prepare', 'receipt'].includes(id), 'Use slack prepare or slack receipt; the host uses its existing Slack MCP tools to send.');
+    const raw = fs.readFileSync(0, 'utf8'); check(Buffer.byteLength(raw) <= 16384, 'Input too large');
+    const input = JSON.parse(raw);
+    const result = id === 'prepare' ? prepareSlackNotification({ ...input, ...(values.language === undefined ? {} : { language: values.language }) }) : slackReceipt(input.prepared, input.receipt);
+    console.log(JSON.stringify(result, null, 2));
+    if (result.status === 'failed') process.exitCode = 2;
+  }
   else if (command === 'setup') console.log(JSON.stringify(await setup({ fromEnv: values['from-env'], language: values.language }), null, 2));
   else if (command === 'status') console.log(JSON.stringify(await localStatus(), null, 2));
   else if (command === 'start') { await ensureLocal(); console.log(JSON.stringify(await localStatus(), null, 2)); }
@@ -53,10 +64,14 @@ try {
   else if (command === 'serve') await serve();
   else {
     check(['request', 'create', 'preferences', 'get', 'cancel', 'codex'].includes(command), 'Unknown command; use --help');
-    const client = await ensureLocal({ ...process.env, ...(values.language === undefined ? {} : { DONERELAY_LANGUAGE: values.language }) }); let r;
+    let input;
     if (command === 'request' || command === 'create') {
       const raw = fs.readFileSync(0, 'utf8'); check(Buffer.byteLength(raw) <= 16384, 'Input too large');
-      const input = JSON.parse(raw);
+      input = JSON.parse(raw);
+      check(!input?.channels?.includes?.('slack'), 'Slack uses the host MCP connection: follow the Slack skill workflow and use slack prepare. No local service setup is needed.');
+    }
+    const client = await ensureLocal({ ...process.env, ...(values.language === undefined ? {} : { DONERELAY_LANGUAGE: values.language }) }); let r;
+    if (command === 'request' || command === 'create') {
       if (values.language !== undefined) { check(input && typeof input === 'object' && !Array.isArray(input), 'Expected a JSON object'); input.language = values.language; }
       r = await client.create(input);
       if (values.wait && r.status === 'pending') { console.error(`Waiting for ${r.id}`); r = await client.wait(r.id); }

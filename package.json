@@ -1,7 +1,7 @@
 {
   "name": "donerelay",
-  "version": "0.1.0-alpha.6",
-  "description": "One local bundle for Telegram notifications, questions, and remote approvals in Codex and Claude Code; experimental WeChat support.",
+  "version": "0.1.0-alpha.7",
+  "description": "Slack self-DM notifications through your existing MCP connection, plus Telegram questions and approvals in one local Codex/Claude bundle; experimental WeChat support.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -59,6 +59,7 @@
     "human-in-the-loop",
     "remote-approvals",
     "notifications",
-    "nodejs"
+    "nodejs",
+    "slack"
   ]
 }
