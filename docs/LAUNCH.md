@@ -15,11 +15,11 @@ Package metadata, plugin manifests, CLI, health endpoint, and native adapter ide
 | Automated checks | 53/53 tests passed on Node 22 and 24 after launch changes; installed npm artifact checks passed on both; provider calls in unit tests are simulated |
 | VPS bridge | Actual alpha.3 Docker deployment, non-root process, private persistent state, healthy listener bound to host `127.0.0.1:8787`; messaging secrets outside workspace |
 | Telegram account | Live getMe/getChat succeeded; configured destination is private; no webhook; request sends accepted by Telegram |
-| Phone question round trip | Initial unanswered test cancelled by the controlled restart; a fresh native plan question is waiting for the owner’s numbered reply; not yet passed |
+| Phone question round trip | Initial test cancelled by the controlled restart; the subsequent native plan question expired without an answer. A new owner-assisted test is required. |
 | Native completion | Real authenticated Codex adapter completed and sent `DONERELAY_NATIVE_COMPLETION_OK` through Telegram |
 | Native approval | Actual native approval reached Telegram; owner approved; the same adapter created its exact marker and completed |
 | Native expiry | Actual native request expired after 15 seconds; Codex completed without creating the marker file |
-| Native question | Default mode reports tool unavailable; explicit `--plan` mode added; real native question reached Telegram and is waiting for its answer |
+| Native question | Default mode reports tool unavailable; explicit `--plan` mode added. Real native question reached Telegram but expired without an answer. |
 | Native denial | Owner denied through Telegram; same Codex workflow completed with the denied marker absent |
 | Bridge restart | Actual alpha.2 → alpha.3 replacement cancelled both pending questions; approved/denied/expired results retained. One polling caller encountered a connection error and failed closed; no operation was granted |
 | Duplicate / unauthorized | Automated fixtures pass; provider-origin negative acceptance remains pending |
@@ -34,7 +34,7 @@ Package metadata, plugin manifests, CLI, health endpoint, and native adapter ide
 
 ## Decisions and external blockers
 
-1. **Phone participation:** answer the fresh native plan question in Telegram. Approval, denial, expiry and controlled restart already have live evidence. Native callers must remain alive for their own replies. A second controlled account is needed for a real unauthorized-sender test; repeat-reply acceptance also needs confirmation.
+1. **Phone participation:** start and answer a new native plan question in Telegram; the prior question expired. Approval, denial, expiry and controlled restart already have live evidence. Native callers must remain alive for their own replies. A second controlled account is needed for a real unauthorized-sender test; repeat-reply acceptance also needs confirmation.
 2. **Release and real recording:** finish the live Telegram cases before promoting a tested Telegram beta. The existing GIF is illustrated. A real terminal capture of the fresh question is running. A phone-screen recording requires the owner’s phone and review/redaction; it cannot be fabricated from fixtures.
 3. **Initial users:** owner supplies 5–10 developer contacts or chooses approved communities. Do not invent recruits or successful setups. Target three independent setups plus repeat use; record actual outcomes.
 4. **Publisher accounts:** owner supplies reviewed publisher name, support contact, logo choice, and privacy/terms approval; completes identity verification and submission permissions in the target portals. Do not attest on the owner's behalf. No authenticated publisher portal is available in this session. Identity/role checks and final submission remain pending. npm authentication is also not configured on the VPS; no registry publication is claimed.
@@ -67,3 +67,5 @@ The GitHub prerelease is prepared as a draft while the remaining live phone-answ
 Alpha.4 adds saved `/language en|zh|auto` preferences in the bound Telegram chat, per-request/CLI/environment overrides, and an authenticated preferences read endpoint for agents. Request labels, action buttons, numbered reply instructions, and acknowledgements use one language. Exact proposal text and callback IDs are preserved. The agent skill chooses from conversation context in automatic mode; the bridge uses a documented text heuristic if no explicit choice is supplied. Native Codex uses the configured choice or prompt-language fallback.
 
 Language regression checks cover English/Chinese rendering, restart persistence, unauthorized preference changes, request language stability, duplicate replies, idempotency, native question labels, WhatsApp buttons, CLI precedence, and the standalone copied skill client. These checks use simulated provider calls and do not replace the outstanding live acceptance gates above. The preceding unanswered native question expired; it is no longer a waiting caller.
+
+Alpha.4 validation: 62 tests pass on Node 22 and 24; package installation checks and actual Claude strict validation pass. All nine language tests pass in the isolated Docker test environment. PR #4 merged at `056b7a9`; the VPS is running alpha.4 with `auto` as its effective preference and a passing live doctor check. Existing release gates remain open.
