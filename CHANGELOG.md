@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-alpha.5
+
+- Support plain-text Telegram replies to new questions and explicit approve/deny replies to approvals.
+- Persist exact provider message bindings; preserve authorization, language, expiry, restart, and single-use checks.
+- Open Telegram’s reply UI for questions while retaining numbered commands and approval buttons.
+
 ## 0.1.0-alpha.4
 
 - Use one message language at a time for request labels, buttons, instructions, and reply acknowledgements.

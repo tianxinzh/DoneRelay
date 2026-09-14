@@ -15,3 +15,5 @@ Keep messaging credentials outside agent workspaces, preferably under a separate
 Stop the bridge before deleting its state; do not remove a lock for a running process. Removing local state does not delete provider-side messages. Use the relevant provider's account controls for its retained data.
 
 For non-sensitive project questions, use https://github.com/tianxinzh/DoneRelay/issues. Follow [SECURITY.md](SECURITY.md) for vulnerability handling and do not disclose credentials publicly.
+
+Telegram direct replies require storing the provider message, chat, and bot IDs with a request’s delivery record. These identifiers accompany the request returned to its authenticated caller and expire with the existing request-retention policy. Message contents are not used to infer the reply target.

@@ -1,6 +1,6 @@
 # Telegram launch record
 
-Current candidate: `0.1.0-alpha.4`. The live acceptance record below describes the preceding alpha.3 implementation; language changes are described separately below. Implementation merged in PR #3 at `1d56622379138a6088b1c3b86192713e59216d4c` (source change `3a6da1d0268d42ef4a973a35e0b1dbc82f243261`), based on main `0340275157de8dc3e75540192e9c9bdb43941c44`. This is an early Telegram release candidate, not a claim of marketplace acceptance. Evidence collected on 2026-09-13 UTC on AlmaLinux 10.2, Node.js 22.23.1, Codex CLI 0.154.0, and Claude Code 2.1.261. Provider account identifiers, credentials, and raw native session traces are kept outside this repository.
+Current candidate: `0.1.0-alpha.5`. The live acceptance record below describes the preceding alpha.3 implementation; language changes are described separately below. Implementation merged in PR #3 at `1d56622379138a6088b1c3b86192713e59216d4c` (source change `3a6da1d0268d42ef4a973a35e0b1dbc82f243261`), based on main `0340275157de8dc3e75540192e9c9bdb43941c44`. This is an early Telegram release candidate, not a claim of marketplace acceptance. Evidence collected on 2026-09-13 UTC on AlmaLinux 10.2, Node.js 22.23.1, Codex CLI 0.154.0, and Claude Code 2.1.261. Provider account identifiers, credentials, and raw native session traces are kept outside this repository.
 
 ## One implementation
 
@@ -69,3 +69,9 @@ Alpha.4 adds saved `/language en|zh|auto` preferences in the bound Telegram chat
 Language regression checks cover English/Chinese rendering, restart persistence, unauthorized preference changes, request language stability, duplicate replies, idempotency, native question labels, WhatsApp buttons, CLI precedence, and the standalone copied skill client. These checks use simulated provider calls and do not replace the outstanding live acceptance gates above. The preceding unanswered native question expired; it is no longer a waiting caller.
 
 Alpha.4 validation: 62 tests pass on Node 22 and 24; package installation checks and actual Claude strict validation pass. All nine language tests pass in the isolated Docker test environment. PR #4 merged at `056b7a9`; the VPS is running alpha.4 with `auto` as its effective preference and a passing live doctor check. Existing release gates remain open.
+
+## Direct Telegram replies — 2026-09-14
+
+Alpha.5 persists the message/chat/bot binding from a successful Telegram send. New questions use ForceReply and accept plain-text replies; approvals accept only explicit approve/deny replies or buttons. Copied/forwarded targets, mismatched IDs, unknown senders, unconfirmed sends, expiry, cancellation, restart, and duplicate decisions remain fail-closed. Numbered commands remain available for older messages that have no stored binding.
+
+Automated validation adds real-local-HTTP waiting-caller integration plus provider fixtures for matching, conflicting, stale, multilingual, media, and failed-delivery cases. A live phone test is separate from this fixture evidence.

@@ -48,6 +48,8 @@ export class Relay {
         const result = await this.channels[name].send(formatRequest(r), r);
         delivery = { status: 'sent' };
         if (result?.providerMessageId) delivery.providerMessageId = result.providerMessageId;
+        if (result?.providerChatId) delivery.providerChatId = result.providerChatId;
+        if (result?.providerBotId) delivery.providerBotId = result.providerBotId;
       } catch (error) {
         delivery = { status: 'failed', error: 'Delivery failed; check channel credentials, context, and connectivity.' };
         if (['whatsapp_opt_in_required', 'whatsapp_window_closed'].includes(error?.code)) delivery.code = error.code;
@@ -67,7 +69,11 @@ export class Relay {
     const reply = parseReply(input);
     check(reply, words('en').replyHelp);
     if (reply.action === 'answer') text(reply.answer, 'answer', 2000);
-    return this.store.decide(reply.id, reply.action, reply.answer, { channel, userId: String(actor.userId) });
+    const resolvedBy = { channel, userId: String(actor.userId) };
+    if (channel === 'telegram' && Number.isSafeInteger(actor.replyToMessageId) && actor.replyToMessageId > 0) {
+      resolvedBy.telegramReplyToMessageId = String(actor.replyToMessageId);
+    }
+    return this.store.decide(reply.id, reply.action, reply.answer, resolvedBy);
   }
   cancel(id) {
     const r = this.store.get(id);
