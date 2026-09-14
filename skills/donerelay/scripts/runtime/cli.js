@@ -16,7 +16,7 @@ const HELP = `DoneRelay ${VERSION}
   donerelay uninstall [--purge]        Stop; optionally remove local settings/history
   donerelay doctor                    Check local setup and service connectivity
   donerelay request [--wait]           Read a request JSON object from stdin
-  donerelay preferences               Read the bridge's saved language preference
+  donerelay preferences               Read the saved local language preference
   donerelay get REQUEST_ID             Inspect an existing request
   donerelay cancel REQUEST_ID          Cancel a pending request (never approve it)
   donerelay codex --prompt TEXT [--cwd DIRECTORY] [--plan]

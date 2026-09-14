@@ -143,3 +143,16 @@ test('hidden setup input never echoes the token and restores terminal state on c
   const cancelled=hiddenInput('Token (hidden): ',input,output);input.write('fixture\u0003');
   await assert.rejects(cancelled,/cancelled/);assert.equal(input.isRaw,false);assert.doesNotMatch(rendered,/fixture/);
 });
+test('local doctor checks configuration, service and provider read-only without printing credentials', async t => {
+  const f=await home(t);const {localDoctor}=await import('../skills/donerelay/scripts/runtime/local.js');
+  const calls=[];const provider=async url=>{
+    const method=url.split('/').at(-1);calls.push(method);
+    return new Response(JSON.stringify({ok:true,result:method==='getMe'?{is_bot:true}:method==='getChat'?{id:10,type:'private'}:{url:''}}));
+  };
+  const stopped=await localDoctor(f.env,{fetchImpl:provider});
+  assert.equal(stopped.ok,false);assert.equal((await localStatus(f.env)).running,false);assert.equal(fs.existsSync(f.paths.runtime),false);
+  await ensureLocal(f.env,options);const healthy=await localDoctor(f.env,{fetchImpl:provider});
+  assert.equal(healthy.ok,true);assert.match(healthy.checks.find(x=>x.name==='local_service').guidance,/running and authenticated/);
+  assert.doesNotMatch(JSON.stringify(healthy),/fixture/);assert.ok(!JSON.stringify(healthy).includes(readPrivate(f.paths.connection).token));
+  assert.ok(calls.every(method=>['getMe','getChat','getWebhookInfo'].includes(method)));
+});

@@ -28,3 +28,17 @@ Those releases used the older standalone-service installation. Their deployment 
 - Keep WhatsApp and Weixin experimental until account setup, reply/consent/restart and hours-idle cases pass; WhatsApp still lacks template fallback.
 
 The public site and GitHub metadata are distribution surfaces, not validation evidence. See [tester plan](BETA_TESTING.md), [submission packet](SUBMISSION.md), and [development/migration notes](DEVELOPMENT.md).
+
+## Alpha.6 validation — 2026-09-14
+
+Implementation introduced in `84f7c5c` (PR #6), with follow-up doctor guidance/coverage and this evidence record. Host: AlmaLinux 10.2; Node 22.23.1 and 24.21.0; Codex 0.154.0; Claude Code 2.1.261.
+
+- 86 automated tests pass on Node 22 and 24, including 12 local lifecycle/setup checks. Provider calls in this suite are simulated.
+- Installed npm artifact and complete copied-skill checks pass on both Node versions, without repository-only dependencies or manual connection exports.
+- Actual Claude strict marketplace and plugin validators pass. A fresh isolated configuration installs and enables alpha.6.
+- Actual Codex App Server discovers the complete copied skill in a fresh project with no discovery errors.
+- A real PTY setup run with a simulated provider verifies private pairing, generated settings and hidden token input. This test found and fixed a terminal-echo race; it is not a real first-time Telegram pairing recording.
+- The existing bot configuration was imported privately into the local bundle on the same machine after the old standalone process stopped. The local service and live Telegram account doctor pass. Both installed host helpers retrieve preferences without connection exports.
+- A fresh actual Codex native plan question reached Telegram through the locally bundled service. Its phone-answer/resumption result remains pending until recorded separately; do not infer success from delivery.
+
+Private evidence includes sanitized test logs, wizard results, host discovery, local doctor output and native question status. No credentials, private provider IDs or task traces are committed.

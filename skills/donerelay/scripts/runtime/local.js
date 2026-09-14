@@ -190,7 +190,7 @@ export async function uninstallLocal(env = process.env, { purge = false } = {}) 
     return { stopped: true, configurationRemoved: purge, next: 'Remove the skill or plugin through its host to finish uninstalling.' };
   });
 }
-export async function localDoctor(env = process.env) {
+export async function localDoctor(env = process.env, { fetchImpl = fetch } = {}) {
   const paths = localPaths(env); const checks = [];
   const add = (name, ok, guidance) => checks.push({ name, ok, guidance });
   add('node', Number(process.versions.node.split('.')[0]) >= 22, 'Use Node.js 22 or newer.');
@@ -200,11 +200,11 @@ export async function localDoctor(env = process.env) {
     if (status.configured) {
       const config = readPrivate(paths.config);
       add('telegram_configuration', typeof config.TELEGRAM_BOT_TOKEN === 'string' && /^[1-9]\d*$/.test(config.TELEGRAM_USER_ID) && config.TELEGRAM_USER_ID === config.TELEGRAM_CHAT_ID, 'Complete Telegram setup in your terminal.');
-      add('local_service', status.running, status.processAlive ? 'Service process is alive but unavailable; inspect local service state.' : 'Run start, or invoke the skill to start the bundled service automatically.');
+      add('local_service', status.running, status.running ? 'Local service is running and authenticated.' : status.processAlive ? 'Service process is alive but unavailable; inspect local service state.' : 'Run start, or invoke the skill to start the bundled service automatically.');
       if (status.running) add('bundle_version', status.compatible, 'Finish pending requests, stop the service, then start from the updated bundle.');
       try {
         const { validateTelegram } = await import('./setup.js');
-        await validateTelegram(config);
+        await validateTelegram(config, fetchImpl);
         add('telegram_account', true, 'Private Telegram account is reachable and has no webhook.');
       } catch { add('telegram_account', false, 'Check Telegram credentials, private chat access, network, and conflicting webhook configuration privately.'); }
     }
