@@ -1,4 +1,5 @@
-import { check, delay, RelayError, safeError } from '../util.js';
+import { check, delay, RelayError } from '../util.js';
+import { resolveLanguage, words, replyLanguage, replyError } from '../language.js';
 export class Telegram {
   constructor({ token, chatId, userId, store, fetchImpl = fetch }) {
     check(token && /^\d+:[\w-]+$/.test(token), 'Invalid TELEGRAM_BOT_TOKEN');
@@ -19,10 +20,11 @@ export class Telegram {
     } catch { throw new RelayError('Telegram request failed; verify bot configuration or retry later.', 502); }
   }
   async send(message, request) {
+    const w = words(request?.language ?? resolveLanguage('auto', message));
     const body = { chat_id: this.chatId, text: message, link_preview_options: { is_disabled: true } };
     if (request?.kind === 'approval') body.reply_markup = { inline_keyboard: [[
-      { text: 'Approve once / 批准一次', callback_data: `approve ${request.id}` },
-      { text: 'Deny / 拒绝', callback_data: `deny ${request.id}` },
+      { text: w.approveButton, callback_data: `approve ${request.id}` },
+      { text: w.denyButton, callback_data: `deny ${request.id}` },
     ]] };
     return this.api('sendMessage', body);
   }
@@ -32,9 +34,20 @@ export class Telegram {
     const sender = q?.from ?? m?.from;
     const actor = { userId: sender?.id, chatId: m?.chat?.id, private: m?.chat?.type === 'private' };
     if (!this.authorize(actor)) return;
+    const input = q?.data ?? m?.text;
+    const command = !q && typeof input === 'string' && input.trim().match(/^\/language(?:\s+(\S+))?$/i);
+    if (command) {
+      const selected = command[1]?.toLowerCase();
+      const language = resolveLanguage(['en', 'zh'].includes(selected) ? selected : this.relay.preference(), sender?.language_code?.startsWith('zh') ? '中文' : 'English');
+      const w = words(language);
+      if (!['auto', 'en', 'zh'].includes(selected)) return this.send(w.languageHelp);
+      this.store.meta('language', selected);
+      return this.send(`${w.selected}${selected === 'auto' ? ` ${w.auto}` : ''}`);
+    }
+    const language = replyLanguage(this.relay, input);
     let ack;
-    try { const r = this.relay.receive('telegram', q?.data ?? m?.text, actor); ack = `${r.id}: ${r.status}`; }
-    catch (e) { ack = safeError(e); }
+    try { const r = this.relay.receive('telegram', input, actor); ack = `${r.id}: ${words(r.language ?? language)[r.status]}`; }
+    catch (e) { ack = replyError(e, language); }
     // The state transition happens BEFORE the acknowledgement. Delivery retries cannot approve twice.
     if (q) {
       await this.api('answerCallbackQuery', { callback_query_id: q.id, text: ack.slice(0, 190) });

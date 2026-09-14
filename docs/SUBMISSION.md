@@ -1,6 +1,6 @@
 # DoneRelay submission packet — draft, not submitted
 
-Prepared 2026-09-12 for `0.1.0-alpha.3`. Copy fields only after validating the exact submitted commit. The publisher must supply identity, contact details, accounts, and attestations personally. This file is not evidence of a passed review.
+Updated 2026-09-14 for `0.1.0-alpha.4`. Copy fields only after validating the exact submitted commit. The publisher must supply identity, contact details, accounts, and attestations personally. This file is not evidence of a passed review.
 
 ## Listing copy
 

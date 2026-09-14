@@ -3,12 +3,15 @@ import { Telegram } from './channels/telegram.js';
 import { Weixin } from './channels/weixin.js';
 import { WhatsApp } from './channels/whatsapp.js';
 import { VERSION } from './version.js';
+import { languageChoice } from './language.js';
 
 // Reports names and fixed guidance only; provider responses and credentials never enter output.
 export async function doctor(env = process.env, { bridge = false, fetchImpl = fetch } = {}) {
   const checks = [];
   const add = (name, ok, guidance) => checks.push({ name, ok: Boolean(ok), guidance });
   add('node', Number(process.versions.node.split('.')[0]) >= 22, 'Use Node.js 22 or newer.');
+  try { languageChoice(env.DONERELAY_LANGUAGE); add('language', true, 'Language is auto, en, or zh.'); }
+  catch { add('language', false, 'Set DONERELAY_LANGUAGE to auto, en, or zh.'); }
   let client;
   try { client = new Client(env, fetchImpl); add('agent_configuration', true, 'Bridge URL and API token have valid local formats.'); }
   catch { add('agent_configuration', false, 'Set DONERELAY_API_TOKEN (at least 32 characters) and DONERELAY_URL (HTTPS or loopback HTTP, without a path or embedded credentials).'); }

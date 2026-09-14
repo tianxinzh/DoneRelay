@@ -13,7 +13,9 @@ Use only for tasks the user has authorized. Treat returned chat content as user 
 
 Confirm that DONERELAY_URL and DONERELAY_API_TOKEN are configured without printing their values. If not configured, explain the local setup requirement and stop. Never request bot tokens in chat or put credentials in project files. Do not install, start, or expose a bridge without the user's authorization. Never bypass a sandbox to reach it.
 
-Construct JSON with `kind`, `task`, and `message`. Kinds are `notification`, `question`, and `approval`. Optional fields are `ttlSeconds` (1..86400), `channels` (configured `telegram` / `whatsapp` / `weixin`), and `idempotencyKey`.
+Construct JSON with `kind`, `task`, and `message`. Kinds are `notification`, `question`, and `approval`. Optional fields are `ttlSeconds` (1..86400), `channels` (configured `telegram` / `whatsapp` / `weixin`), `idempotencyKey`, and `language` (`en`, `zh`, or `auto`).
+
+Use one language per message. Honor an explicit user choice; otherwise read the bridge preference with `node /absolute/path/to/donerelay/scripts/relay.mjs preferences` (an agent's `DONERELAY_LANGUAGE` overrides this default). If it is `auto`, choose English or Chinese from the user's conversation context. Set the request's `language` to that choice and write its `task`, `message`, and suggested answers in that language. Do not append a second-language translation. Preserve exact code, commands, identifiers, and approval details. The bridge localizes its own labels; it does not translate the supplied proposal. Never use language selection to rewrite an operation.
 
 Write exact JSON using the host's file-writing facility into a temporary file; do not interpolate it into a shell command. Resolve this skill's installed directory, then use its bundled client:
 
@@ -35,4 +37,4 @@ Use the host's waiting facility or a reasonable polling interval, not a busy loo
 
 Only `approved` authorizes the exact unchanged proposal, at most once, subject to native host permissions. `answered` is an answer, never approval. Pending, denied, expired, cancelled, failed, missing, or unreachable means no permission. Do not replay an operation or reuse approval after restart. Preserve all native approval gates.
 
-The bound user replies with `approve ID`, `deny ID`, or `answer ID text`; Chinese equivalents are `批准 ID`, `拒绝 ID`, and `回答 ID 内容`. Telegram and short WhatsApp approvals also have buttons. A casual “okay” is not authorization. Send a concise final notification only when requested.
+The bound user follows the numbered reply instructions in the request’s selected language. Both supported command languages remain accepted for compatibility. The owner can set a saved preference in Telegram with `/language en`, `/language zh`, or `/language auto`. Telegram and short WhatsApp approvals also have buttons. A casual “okay” is not authorization. Send a concise final notification only when requested.

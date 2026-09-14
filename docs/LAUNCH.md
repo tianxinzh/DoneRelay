@@ -1,6 +1,6 @@
 # Telegram launch record
 
-Target: `0.1.0-alpha.3`. Implementation merged in PR #3 at `1d56622379138a6088b1c3b86192713e59216d4c` (source change `3a6da1d0268d42ef4a973a35e0b1dbc82f243261`), based on main `0340275157de8dc3e75540192e9c9bdb43941c44`. This is an early Telegram release candidate, not a claim of marketplace acceptance. Evidence collected on 2026-09-13 UTC on AlmaLinux 10.2, Node.js 22.23.1, Codex CLI 0.154.0, and Claude Code 2.1.261. Provider account identifiers, credentials, and raw native session traces are kept outside this repository.
+Current candidate: `0.1.0-alpha.4`. The live acceptance record below describes the preceding alpha.3 implementation; language changes are described separately below. Implementation merged in PR #3 at `1d56622379138a6088b1c3b86192713e59216d4c` (source change `3a6da1d0268d42ef4a973a35e0b1dbc82f243261`), based on main `0340275157de8dc3e75540192e9c9bdb43941c44`. This is an early Telegram release candidate, not a claim of marketplace acceptance. Evidence collected on 2026-09-13 UTC on AlmaLinux 10.2, Node.js 22.23.1, Codex CLI 0.154.0, and Claude Code 2.1.261. Provider account identifiers, credentials, and raw native session traces are kept outside this repository.
 
 ## One implementation
 
@@ -61,3 +61,9 @@ Official documentation checked 2026-09-13: [Codex App Server](https://learn.chat
 ## Release decision
 
 The GitHub prerelease is prepared as a draft while the remaining live phone-answer and provider-origin negative cases are open. It must not be promoted as a fully validated Telegram beta before those gates are completed or the owner explicitly chooses an alpha release with the gaps disclosed. The landing page invites testing but does not claim completed independent-user validation.
+
+## Single-language follow-up — 2026-09-14
+
+Alpha.4 adds saved `/language en|zh|auto` preferences in the bound Telegram chat, per-request/CLI/environment overrides, and an authenticated preferences read endpoint for agents. Request labels, action buttons, numbered reply instructions, and acknowledgements use one language. Exact proposal text and callback IDs are preserved. The agent skill chooses from conversation context in automatic mode; the bridge uses a documented text heuristic if no explicit choice is supplied. Native Codex uses the configured choice or prompt-language fallback.
+
+Language regression checks cover English/Chinese rendering, restart persistence, unauthorized preference changes, request language stability, duplicate replies, idempotency, native question labels, WhatsApp buttons, CLI precedence, and the standalone copied skill client. These checks use simulated provider calls and do not replace the outstanding live acceptance gates above. The preceding unanswered native question expired; it is no longer a waiting caller.

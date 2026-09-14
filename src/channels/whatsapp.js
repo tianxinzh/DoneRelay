@@ -1,6 +1,7 @@
 import http from 'node:http';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { check, digest, parseReply, RelayError, secretEqual } from '../util.js';
+import { resolveLanguage, words } from '../language.js';
 
 const WINDOW_MS = 24 * 60 * 60 * 1000;
 const MAX_BODY = 256 * 1024;
@@ -48,9 +49,10 @@ export class WhatsApp {
     if (request?.kind === 'approval' && message.length <= 1024) {
       check(/^[A-F0-9]{12}$/.test(request.id), 'Invalid approval request ID');
       body.type = 'interactive';
+      const w = words(request.language ?? resolveLanguage('auto', message));
       body.interactive = { type: 'button', body: { text: message }, action: { buttons: [
-        { type: 'reply', reply: { id: `approve ${request.id}`, title: 'Approve once' } },
-        { type: 'reply', reply: { id: `deny ${request.id}`, title: 'Deny' } },
+        { type: 'reply', reply: { id: `approve ${request.id}`, title: w.approveButton } },
+        { type: 'reply', reply: { id: `deny ${request.id}`, title: w.denyButton } },
       ] } };
     } else {
       body.type = 'text'; body.text = { preview_url: false, body: message };

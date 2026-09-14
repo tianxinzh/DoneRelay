@@ -1,10 +1,12 @@
 import { check, delay, RelayError } from './util.js';
+import { languageChoice } from './language.js';
 export class Client {
   constructor(env = process.env, fetchImpl = fetch) {
     const url = new URL(env.DONERELAY_URL ?? 'http://127.0.0.1:8787');
     check((url.protocol === 'https:' || (url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname))) &&
       !url.username && !url.password && !url.search && !url.hash && url.pathname === '/', 'Use HTTPS or loopback HTTP for DONERELAY_URL');
     this.origin = url.origin; this.token = env.DONERELAY_API_TOKEN; this.fetchImpl = fetchImpl;
+    this.language = env.DONERELAY_LANGUAGE === undefined ? undefined : languageChoice(env.DONERELAY_LANGUAGE);
     check(typeof this.token === 'string' && this.token.length >= 32, 'Configure DONERELAY_API_TOKEN locally');
   }
   async call(path, body, signal) {
@@ -16,9 +18,10 @@ export class Client {
     } catch { throw new RelayError('Cannot reach DoneRelay; check the local service and network', 502); }
     const result = await response.json();
     if (!response.ok) throw new RelayError(result.error ?? 'DoneRelay API error', response.status);
-    return result.request;
+    return path === '/v1/preferences' ? result.preferences : result.request;
   }
-  create(input, signal) { return this.call('/v1/requests', input, signal); }
+  create(input, signal) { return this.call('/v1/requests', this.language === undefined || !input || typeof input !== 'object' || Array.isArray(input) ? input : { ...input, language: input.language ?? this.language }, signal); }
+  preferences() { return this.call('/v1/preferences'); }
   get(id, signal) { check(/^[A-F0-9]{12}$/.test(id), 'Invalid request ID'); return this.call(`/v1/requests/${id}`, undefined, signal); }
   cancel(id) { check(/^[A-F0-9]{12}$/.test(id), 'Invalid request ID'); return this.call(`/v1/requests/${id}/cancel`, {}); }
   async wait(id, signal) {
