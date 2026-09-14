@@ -15,3 +15,5 @@ Experimental WhatsApp/Weixin adapter code is also included but not paired by the
 `uninstall` stops an idle service and retains data. `uninstall --purge` stops safely and deletes the tool's local credentials, connection records and request history. Both refuse pending work. Remove the skill/plugin from each host to finish uninstalling; an installed configured skill can start the service again. Local deletion does not delete Telegram messages or backups.
 
 For non-sensitive support, use https://github.com/tianxinzh/DoneRelay/issues. Follow [SECURITY.md](SECURITY.md) for vulnerability reporting.
+
+Slack notifications use the existing Codex/Claude MCP connection. The host sends the selected task summary to the connected user's verified self-DM. DoneRelay does not read/store Slack OAuth tokens, configure another MCP client or retain a Slack message ledger. The preparation/receipt helper handles workspace/user/conversation identifiers and provider message timestamps; temporary request files should be deleted after use. The host and Slack may retain tool/chat history under their own policies. No Slack replies are ingested as approvals.

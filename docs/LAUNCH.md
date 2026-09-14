@@ -1,6 +1,6 @@
 # Local bundle launch record
 
-Current candidate: `0.1.0-alpha.6`. The authoritative runtime ships inside `skills/donerelay/scripts/runtime/`; `src/` only forwards existing entry points. Main's request schema, durable JSON decisions, and cancellation of pending requests on restart are preserved. The alternative PR #2 implementation remains superseded.
+Current candidate: `0.1.0-alpha.7`. Alpha.6 evidence below is historical for the local-bundle runtime. The authoritative runtime ships inside `skills/donerelay/scripts/runtime/`; `src/` only forwards existing entry points. Main's request schema, durable JSON decisions, and cancellation of pending requests on restart are preserved. The alternative PR #2 implementation remains superseded.
 
 ## Alpha.6 scope
 
@@ -42,3 +42,11 @@ Implementation introduced in `84f7c5c` (PR #6), with follow-up doctor guidance/c
 - Actual Codex native plan question/resumption PASSED: the owner replied directly in Telegram; the stored message provenance matched; the same running native thread completed and its completion notification was accepted by Telegram at 2026-09-14 05:18:32 UTC. The test used runtime source `84f7c5c`; subsequent changes in PR #6 only added doctor guidance/coverage and documentation. PR #6 merged as `3d29a557cf5ee6ac2c4e7aca39aeca98725e27ea`.
 
 Private evidence includes sanitized test logs, wizard results, host discovery, local doctor output and native question status. No credentials, private provider IDs or task traces are committed.
+
+## Alpha.7 Slack self notifications
+
+The skill reuses an existing host Slack MCP connection for notifications to the connected human's own DM. Preparation and receipt helpers require the same workspace/connection, complete self-only membership and a provider timestamp. No Slack credential import, new MCP connection, Telegram setup or local daemon is required for this route. Slack questions/replies/approvals and native adapter Slack forwarding are not implemented.
+
+Live blocker: no Slack MCP tools were exposed in this agent session and neither local CLI listed a Slack connection. Actual self-DM delivery and phone alerts remain unverified. Fixture tests cannot close this gate. Enable the intended host connection and verify a harmless self notification; see [Slack acceptance](SLACK.md).
+
+Alpha.7 validation: 97 tests pass on Node 22.23.1 and 24.21.0; all 11 Slack tests also pass in an isolated read-only Linux container. Installed package checks pass on both Node versions. Actual Claude strict marketplace/plugin validation and the skill validator pass. These checks use simulated Slack connector responses; no live Slack message or phone alert was verified.

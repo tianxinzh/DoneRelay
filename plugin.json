@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "donerelay",
-  "version": "0.1.0-alpha.6",
-  "description": "One local bundle for Telegram notifications, questions, and remote approvals in Codex and Claude Code; experimental WeChat support.",
+  "version": "0.1.0-alpha.7",
+  "description": "Slack self-DM notifications through your existing MCP connection, plus Telegram questions and approvals in one local Codex/Claude bundle; experimental WeChat support.",
   "author": {
     "name": "DoneRelay contributors",
     "url": "https://github.com/tianxinzh/DoneRelay"
@@ -22,14 +22,15 @@
     "human-in-the-loop",
     "remote-approvals",
     "notifications",
-    "nodejs"
+    "nodejs",
+    "slack"
   ],
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "DoneRelay",
         "shortDescription": "Telegram updates and remote human approvals for AI agents",
-        "longDescription": "One local bundle for Codex and Claude Code with the complete Node.js runtime, guided private Telegram pairing, and automatic service startup. Receive notifications, answer bounded questions and approve or deny one exact operation. Node.js 22+ and a running agent on the same computer are required. Native permissions remain enforced. Experimental WeChat support; hosted runtime compatibility is not verified.",
+        "longDescription": "Reuse your existing host Slack MCP connection for notifications to your own DM, with no new credentials or background service. Telegram questions and approvals use the included local runtime and guided pairing. Requires Node.js 22+ and a running Codex or Claude Code host. Native permissions remain enforced; experimental WeChat support. Slack replies/approvals and hosted-runtime compatibility are not implemented.",
         "developerName": "DoneRelay contributors",
         "category": "Productivity",
         "capabilities": [

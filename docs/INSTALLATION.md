@@ -9,8 +9,9 @@ From a clone of this repository:
 ```sh
 mkdir -p ~/.agents/skills
 cp -R skills/donerelay ~/.agents/skills/
-node ~/.agents/skills/donerelay/scripts/relay.mjs setup
 ```
+
+For Telegram, run `node ~/.agents/skills/donerelay/scripts/relay.mjs setup`. For Slack-only use, skip it and reuse the host connection as described below.
 
 Copy the **whole directory**, including `scripts/runtime`. The runtime includes its own module metadata, so it works outside the repository. Restart/reload Codex. Repository-scoped installs may instead use `.agents/skills/donerelay`; both locations use the same per-user local setup.
 
@@ -23,7 +24,7 @@ Ask: “Use $donerelay to ask one harmless question and wait for my direct Teleg
 /plugin install donerelay@donerelay-plugins
 ```
 
-Reload if prompted. Ask `/donerelay:donerelay Help me set up Telegram locally.` The skill resolves its installed path and gives you a terminal command:
+Reload if prompted. For Slack use the prompt below. For Telegram, ask `/donerelay:donerelay Help me set up Telegram locally.` The skill resolves its installed path and gives you a terminal command:
 
 ```sh
 node /absolute/installed/path/to/donerelay/scripts/relay.mjs setup
@@ -31,7 +32,13 @@ node /absolute/installed/path/to/donerelay/scripts/relay.mjs setup
 
 Run it in your own terminal. The plugin includes the same runtime as the Codex skill. Setup completed under the same OS user is reused, so installing both hosts does not require a second bot or second service. This is DoneRelay's own catalog, not an official directory listing.
 
-## Pair once
+## Slack users: reuse the host connection
+
+After installing either host integration, ask: “Use DoneRelay to send the task result to my own Slack DM through my existing Slack connection.” Skip Telegram pairing, `start`, and local `doctor` for this route; an unconfigured Telegram service is not a Slack failure.
+
+The skill inspects the host's actual Slack tools, verifies the current human/workspace and self-DM, and sends through that same connection. The standalone CLI cannot inherit a host's MCP connection. If the connection or necessary identity/DM/write capability is missing, enable it through that host; do not supply Slack tokens to DoneRelay. Multiple connected workspaces require a selection. Only self notifications are supported; see [Slack details](SLACK.md).
+
+## Pair Telegram once
 
 1. Create a dedicated bot with Telegram's @BotFather.
 2. Run `setup` in an interactive terminal. Choose `en`, `zh`, or `auto` and enter the bot token in the hidden prompt.

@@ -1,10 +1,10 @@
 # DoneRelay distribution and discovery
 
-Updated 2026-09-13. Source version `0.1.0-alpha.6`. No official submission, listing, npm publication, or Cloud compatibility is claimed.
+Updated 2026-09-13. Source version `0.1.0-alpha.7`. No official submission, listing, npm publication, or Cloud compatibility is claimed.
 
 ## Install now from source
 
-Follow [Codex and Claude Code installation](INSTALLATION.md). Both paths include the complete local runtime. Guided setup pairs Telegram once; invoking the configured skill starts or reuses the bundled service on the same computer.
+Follow [Codex and Claude Code installation](INSTALLATION.md). Both paths include the complete local runtime. For Telegram, guided setup pairs once and skill use starts the bundled local service. Slack self notifications reuse the existing host MCP connection and skip Telegram/service setup.
 
 - Codex local: copy `skills/donerelay` to `~/.agents/skills/` or the target project's `.agents/skills/`.
 - Claude Code own catalog: `/plugin marketplace add tianxinzh/DoneRelay`, then `/plugin install donerelay@donerelay-plugins`.

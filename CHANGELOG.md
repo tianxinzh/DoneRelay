@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.7
+
+- Reuse existing host Slack MCP connections for notifications to the authenticated user's own DM.
+- Add Slack preparation/receipt helpers and an embedder callback adapter, with no new credentials or local-service requirement.
+- Validate self identity, workspace and destination, keep messages in one language, disable mention expansion and avoid blind retries after ambiguous sends.
+- Document notification-only scope and the missing live Slack connection validation gate.
+
+
 ## 0.1.0-alpha.6
 
 - Ship the complete runtime inside the skill for one local Codex/Claude bundle.

@@ -2,11 +2,11 @@
 
 Your coding agent is waiting for a decision. Reply from Telegram and keep the task moving.
 
-DoneRelay is **one local bundle for Codex and Claude Code**. It includes the skill, Telegram integration, request store, and background service. Install it where your agent runs, pair your Telegram bot once, and let the skill start the service when needed. No separate server, Docker deployment, bridge URL, or manually generated API token is part of normal installation.
+DoneRelay is **one local bundle for Codex and Claude Code**. It includes the skill, Telegram integration, request store, and background service. Install it where your agent runs. Reuse your existing Slack MCP connection for self notifications, or pair Telegram once for questions and approvals with automatic local startup. No separate server, Docker deployment, bridge URL, or manually generated API token is part of normal installation.
 
-[Installation](docs/INSTALLATION.md) · [FAQ](docs/FAQ.md) · [Validation record](docs/LAUNCH.md) · [简体中文](README.zh-CN.md)
+[Slack self-DM](docs/SLACK.md) · [Installation](docs/INSTALLATION.md) · [FAQ](docs/FAQ.md) · [Validation record](docs/LAUNCH.md) · [简体中文](README.zh-CN.md)
 
-Current source candidate: **0.1.0-alpha.6**. Telegram is the beta scope. WhatsApp and experimental WeChat adapters remain developer previews. No npm publication, official marketplace acceptance, or hosted-agent compatibility is claimed.
+Current source candidate: **0.1.0-alpha.7**. Slack self notifications reuse the host MCP connection; Telegram remains the remote-decision beta scope. WhatsApp and experimental WeChat adapters remain developer previews. No npm publication, official marketplace acceptance, or hosted-agent compatibility is claimed.
 
 ## Install
 
@@ -19,10 +19,15 @@ git clone https://github.com/tianxinzh/DoneRelay.git
 cd DoneRelay
 mkdir -p ~/.agents/skills
 cp -R skills/donerelay ~/.agents/skills/
+```
+
+For Telegram, run:
+
+```sh
 node ~/.agents/skills/donerelay/scripts/relay.mjs setup
 ```
 
-Setup hides the bot token, gives you a private Telegram pairing link, binds the account that opens it, and saves settings outside the project. Use a dedicated bot created with @BotFather. Reload Codex after installation.
+Slack users can skip the command above and use their existing host connection. Telegram setup hides the bot token, gives you a private Telegram pairing link, binds the account that opens it, and saves settings outside the project. Use a dedicated bot created with @BotFather. Reload Codex after installation.
 
 ### Claude Code
 
@@ -37,9 +42,19 @@ This is DoneRelay's own catalog. Reload the plugin if prompted, then ask:
 
 > Use /donerelay:donerelay to help me set up Telegram on this computer.
 
-The skill gives you the `node /absolute/installed/path/scripts/relay.mjs setup` command to run in your own terminal. Enter the token there, never in the agent conversation. If you already paired DoneRelay as the same OS user through Codex, that setup is shared automatically.
+For Slack-only use, skip Telegram pairing and use the Slack prompt below. For Telegram, the skill gives you the `node /absolute/installed/path/scripts/relay.mjs setup` command to run in your own terminal. Enter the token there, never in the agent conversation. If you already paired DoneRelay as the same OS user through Codex, that setup is shared automatically.
 
-## Use it
+## Slack: reuse your existing connection
+
+After installing the skill/plugin, ask:
+
+> Use DoneRelay to send the result of this task to my own Slack DM through my existing Slack connection.
+
+DoneRelay uses the connected host's Slack tools to verify your identity and self-DM, then sends through that same connection. **Slack-only use skips Telegram setup and the local background service.** No Slack token, new bot, or second MCP connection is required. The connection needs identity, self-DM lookup and write capabilities; missing capabilities are reported rather than guessed.
+
+This route supports self notifications, not Slack replies or approvals. Provider acceptance does not prove a phone push alert. Live Slack validation is pending because no Slack connection was exposed in the validation host. See [Slack behavior and setup](docs/SLACK.md).
+
+## Use it with Telegram
 
 In Codex:
 

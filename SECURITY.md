@@ -29,3 +29,7 @@ The managed lifecycle serializes startup and reuses one service per local data d
 Telegram, WhatsApp and Weixin adapter tests use mocked providers. Provider login, account policies, delivery, API compatibility, and unattended idle behavior need live validation. Native Codex support is experimental and scoped to its runner-owned connection. Self-hosting and code-level opt-in checks are not legal or platform-policy certifications.
 
 For a security issue, use GitHub's private vulnerability reporting only if it is enabled for this repository. Otherwise contact the maintainer through a private channel listed on their profile. Do not publish exploit details, credentials, task contents, or full state dumps in a public issue. No private-reporting channel is claimed to be preconfigured by this commit.
+
+## Existing Slack MCP connection
+
+The host owns authentication and invokes its existing Slack tools. DoneRelay validates normalized human/workspace identity and a self-DM containing only that user; it refuses bot identities, other recipients, channels and incomplete membership. The helper cannot independently attest to agent-supplied tool output, so sent results are labeled host-reported MCP receipts. This path sends notifications only and cannot grant an approval. Unknown delivery is not retried automatically. No credentials are scraped or copied from Codex/Claude configuration.

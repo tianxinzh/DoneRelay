@@ -4,6 +4,8 @@
 
 Status: alpha source preview. Runs alongside Codex or Claude Code; guided private Telegram pairing and automatic local startup are included. No separate server or manual API connection setup. Partial real Telegram/Codex acceptance and isolated host installation checks are recorded in docs/LAUNCH.md; remaining launch gates are explicit. No official directory listing, hosted service, npm publication, or Codex Cloud compatibility is claimed. This optional index is not a search-ranking mechanism.
 
+Slack self notifications can reuse the host's existing MCP connection without Telegram setup. Live Slack delivery remains unverified; Slack replies/approvals are not implemented.
+
 ## Documentation
 
 - [Overview and setup](https://github.com/tianxinzh/DoneRelay/blob/main/README.md): prerequisites, architecture, scope, API and safety.
@@ -16,3 +18,5 @@ Status: alpha source preview. Runs alongside Codex or Claude Code; guided privat
 - [Privacy](https://github.com/tianxinzh/DoneRelay/blob/main/PRIVACY.md): locally bundled data flow.
 - [Marketplace research](https://github.com/tianxinzh/DoneRelay/blob/main/docs/MARKETPLACES.md): dated official sources; packaging is not admission.
 - [Submission status](https://github.com/tianxinzh/DoneRelay/blob/main/docs/SUBMISSION.md): draft materials and unresolved release gates.
+
+- [Slack self-DM notifications](https://github.com/tianxinzh/DoneRelay/blob/main/docs/SLACK.md): existing host connection reuse and capability requirements.

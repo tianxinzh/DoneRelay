@@ -35,3 +35,7 @@ Telegram setup is guided. WhatsApp and Weixin remain experimental adapter code; 
 ## Migration from alpha.5
 
 Do not share a bot between the old standalone service and the local bundle. Finish or cancel old pending requests and stop the old process before pairing/importing that bot locally. The new bundle generates fresh local state and internal credentials; it does not silently import previous approvals or replay them. A controlled `setup --from-env` imports validated Telegram credentials and language only. Source archives and plugin metadata must all use the same version.
+
+## Host-mediated Slack notifications
+
+`slack.js` prepares/verifies self-only notifications and provides a callback interface for embedders to reuse existing host MCP tools. The helper neither copies authentication nor starts another Slack connection. `slack prepare`/`slack receipt` bypass local service setup. These are notification helpers, not a channel for native approval ingestion. Receipt evidence is host-reported, not independent attestation; no local Slack store or exactly-once delivery is promised. See [Slack](SLACK.md).
