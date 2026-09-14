@@ -7,7 +7,7 @@
     {
       "name": "donerelay",
       "source": "./",
-      "description": "Telegram notifications and explicit remote confirmations for AI-agent tasks. Requires a self-hosted DoneRelay bridge; WeChat is experimental.",
+      "description": "One local bundle for Telegram notifications, questions, and bounded approvals in Codex and Claude Code. Guided setup and automatic startup; experimental WeChat support.",
       "category": "development",
       "homepage": "https://github.com/tianxinzh/DoneRelay",
       "keywords": [

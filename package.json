@@ -1,7 +1,7 @@
 {
   "name": "donerelay",
-  "version": "0.1.0-alpha.5",
-  "description": "Telegram notifications, remote approvals, and human answers for Codex, Claude Code, and AI agents. Self-hosted Node.js; experimental WeChat support.",
+  "version": "0.1.0-alpha.6",
+  "description": "One local bundle for Telegram notifications, questions, and remote approvals in Codex and Claude Code; experimental WeChat support.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -11,7 +11,7 @@
     "donerelay": "src/cli.js"
   },
   "scripts": {
-    "start": "node src/cli.js serve",
+    "start": "node src/cli.js start",
     "test": "node --test",
     "check": "node --check src/cli.js && node --test",
     "check:discovery": "node scripts/check-discovery.mjs",

@@ -1,2 +1,2 @@
-import fs from 'node:fs';
-export const VERSION = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
+// Compatibility export; implementation ships inside the skill bundle.
+export * from '../skills/donerelay/scripts/runtime/version.js';

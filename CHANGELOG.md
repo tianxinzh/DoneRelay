@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0-alpha.6
+
+- Ship the complete runtime inside the skill for one local Codex/Claude bundle.
+- Add private guided Telegram pairing with a one-time link, hidden token input and generated internal authentication.
+- Automatically start/reuse one detached local service; add status, doctor, safe stop and uninstall/purge.
+- Serialize lifecycle operations, verify service identity, reject pending stops and version-mismatch restarts, and recover verified dead service locks without replaying approvals.
+- Rewrite installation, positioning, examples and privacy/security boundaries for the same-user local bundle. Docker is a development-test fixture only.
+- Keep provider fixtures, actual account evidence and outstanding release gates separate.
+
+
 ## 0.1.0-alpha.5
 
 - Support plain-text Telegram replies to new questions and explicit approve/deny replies to approvals.

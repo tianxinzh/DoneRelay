@@ -1,94 +1,93 @@
-# DoneRelay — Codex、Claude Code 的 Telegram / WhatsApp 通知与远程审批
+# DoneRelay
 
-**离开键盘，也能回答 Agent 的问题。**
+编码 Agent 正在等待你的决定。在 Telegram 回复，让同一个任务继续。
 
-DoneRelay 是开源、自托管的 Node.js 桥接服务和 Agent Skill：通过 Telegram 或 WhatsApp Cloud API 接收完成通知、回答澄清问题、批准或拒绝一个明确操作。支持 Codex、Claude Code 的 Skill 工作流和通用 HTTP/CLI。**个人微信 / Weixin 为实验性支持。**
+DoneRelay 是供 Codex 和 Claude Code 使用的**本地一体化工具包**。技能、Telegram 集成、请求存储和后台服务一起安装，运行在 Agent 所在的同一台电脑上。首次私下配对机器人后，技能会按需自动启动服务。正常安装无需独立服务器、Docker、桥接地址或手动生成 API 令牌。
 
-[English / 完整说明](README.md) · [安装](docs/INSTALLATION.md) · [WhatsApp 配置](docs/WHATSAPP.md) · [常见问题](docs/FAQ.md) · [市场上架调研](docs/MARKETPLACES.md) · [安全边界](SECURITY.md)
+[安装说明](docs/INSTALLATION.md) · [验证记录](docs/LAUNCH.md) · [English](README.md)
 
-![DoneRelay 示例：修复空购物车崩溃，通过 Telegram 批准部署到 staging，继续执行并收到完成通知](docs/assets/donerelay-checkout-demo.gif)
+当前源码候选版本：`0.1.0-alpha.6`。首发范围为 Telegram。WhatsApp 和微信仍是开发预览。未宣称发布 npm、获得官方目录收录或支持托管 Agent 环境。
 
-*这是示意动画，不是真实 Agent 或账号录屏；图中展示 Telegram 流程。* [静态版本](docs/assets/donerelay-checkout-demo-poster.png) · [可编辑源代码](scripts/render-checkout-demo.py)
+## 安装到 Codex
 
-## 当前状态
-
-这是以 Telegram 为首发范围的 `0.1.0-alpha.5` 候选版本。已在 VPS 实测 Codex 完成通知、手机批准和超时拒绝执行；其余验收与阻塞项见 [发布记录](docs/LAUNCH.md)。WhatsApp 和微信尚未完成真实账号验收。 未上架官方目录、未发布 npm，不承诺 Codex Cloud 可用，也不是相关平台的官方产品。
-
-工作流：Agent 提出具体问题 → 发到绑定账号 → 你回复 → 仍在运行的调用方读取结果并继续检查原生权限。Skill 不会自动接管任意终端，不能复活已终止的任务。动画里的测试数量、commit 和部署结果属于虚构示例，不是本工具的实测结果。
-
-## 基本用法
-
-需要 Node.js 22+。克隆仓库后：
+需要 Node.js 22+ 和已登录的 Codex。复制完整技能目录：
 
 ```sh
-npm ci --ignore-scripts
-npm test
-npm run check:discovery
-mkdir -p ~/.config/donerelay
-cp .env.example ~/.config/donerelay/bridge.env
-chmod 600 ~/.config/donerelay/bridge.env
-```
-
-本地生成随机 DONERELAY_API_TOKEN；配置 Telegram bot token、个人 chat ID 和 user ID。先私聊机器人，再运行 `node --env-file="$HOME/.config/donerelay/bridge.env" src/cli.js serve`。运行同样带配置的 `src/cli.js doctor --bridge` 检查设置。为 Agent 单独创建仅含 URL 和 API token 的 `agent.env`；用此文件运行 `examples/request.js`，收到问题后回复 `回答 请求编号 SQLite`。
-
-审批使用 `批准 请求编号`、`拒绝 请求编号` 或按钮；含糊的“好”不是授权。三个渠道共用请求，先到的有效决定生效。凭证应放在 Agent 工作目录之外，最好让桥接服务使用单独系统用户；不要把 token 放进聊天、issue 或 Git。
-
-## 直接回复 Telegram 消息
-
-收到新问题后，直接在 Telegram 的回复框输入答案即可，也可以点击原始问题的“回复”，无需复制请求编号。审批仍需点击按钮，或直接回复原始审批消息并明确输入“批准”或“拒绝”。回答问题不会批准操作。
-
-服务只关联已成功发送并记录的原始消息。转发、复制、编号冲突、陌生发送者、过期、取消和重复回复不会产生新的授权。此功能适用于 alpha.5 及以后发送的消息；旧消息仍使用原有的带编号命令。暂不接受语音、媒体或编辑消息作为答案。
-
-## 消息语言
-
-每条消息只显示一种语言。可在绑定的 Telegram 私聊中发送 `/language zh` 选择中文、`/language en` 选择英语，或 `/language auto` 交给智能体根据上下文选择；`/language` 显示选项。偏好会保存，并在重启后保留。
-
-也可以设置 `DONERELAY_LANGUAGE`、使用 CLI 的 `--language`，或在请求 JSON 中指定 `language`。请求中的选择覆盖默认偏好。自动模式下，智能体选择一种语言；未指定时，桥接服务根据正文是否包含汉字选择中文或英语。桥接服务不会调用模型翻译正文。代码、命令和审批操作保持原样；发送方应使用选定语言撰写说明。已发送请求的语言不会随新偏好改变。
-
-## WhatsApp 支持
-
-使用 Meta 官方 Cloud API 协议，但不是 Meta 官方插件，也不是个人 WhatsApp 扫码登录。发送端需要 Meta app、WhatsApp Business Account 和业务号码配置；接收端用你手机上的 WhatsApp。
-
-在可信服务端配置 `.env.example` 中的 WHATSAPP 变量；Graph API 版本必须按你的 Meta app 明确设置。将公网 HTTPS 回调只转发到独立端口 **8788** 的 `/webhooks/whatsapp`，不要暴露 **8787** 的 Agent API。回调验证完成后订阅正确业务账号的 messages 事件。
-
-绑定用户发送 **START** 开启通知，**STOP** 关闭该渠道的发送和审批。支持通知、文本问答、批准/拒绝按钮；较长审批完整发送为文本，绝不截断操作内容。完整配置见 [WhatsApp 说明](docs/WHATSAPP.md)。
-
-**24 小时窗口限制：** 超过用户最后一条消息 24 小时后，Meta 要求使用已批准模板。本版没有模板兜底，窗口关闭会明确报告发送失败，不默认授权，也不自动重发。长任务可同时启用 Telegram；不能把 WhatsApp 描述成无需互动的永久后台推送。
-
-## 安装 Skill
-
-在仓库根目录为本地 Codex 安装：
-
-```sh
+git clone https://github.com/tianxinzh/DoneRelay.git
+cd DoneRelay
 mkdir -p ~/.agents/skills
 cp -R skills/donerelay ~/.agents/skills/
+node ~/.agents/skills/donerelay/scripts/relay.mjs setup --language zh
 ```
 
-在 Agent 的安全环境配置中设置 DONERELAY_URL 和 DONERELAY_API_TOKEN，然后显式使用 `$donerelay`。
+通过 @BotFather 创建专用机器人。在终端的隐藏输入中填写令牌，然后打开配对链接，在 Telegram 私聊中点击开始。工具自动绑定账号并生成内部连接配置。不要把令牌发到 Agent 对话中。
 
-Claude Code 使用本项目自托管目录：
+重新加载 Codex，然后输入：
+
+> 使用 $donerelay，通过 Telegram 问我一个无害的问题，并等待我的直接回复。
+
+## 安装到 Claude Code
+
+在 Claude Code 中运行：
 
 ```text
 /plugin marketplace add tianxinzh/DoneRelay
 /plugin install donerelay@donerelay-plugins
 ```
 
-再调用 `/donerelay:donerelay`。**安装插件不会启动桥接服务或自动配置机器人。** 这是 Skill，不是 Claude 原生 Channels 或权限拦截插件。
+按提示重新加载插件，再让 `/donerelay:donerelay` 帮助设置本机 Telegram。技能会提供包含实际安装路径的 `node .../scripts/relay.mjs setup` 命令。请在自己的交互式终端中运行。同一系统用户已在 Codex 配对的配置会自动复用，不需要第二个机器人或服务。这是项目自己的插件目录。
 
-## 原生 Codex 和微信边界
+## 日常使用
 
-实验性 Codex App Server runner 创建并管理自己的新会话：
+- 完成通知：明确要求任务结束时通过 Telegram 通知。
+- 问题：直接回复原始 Telegram 请求消息，填写答案即可。
+- 审批：点击按钮，或直接回复 `批准`、`拒绝`；含糊的“好”不代表授权。
+- 语言：`/language zh`、`/language en` 或 `/language auto`。自动模式让 Agent 根据上下文选择一种语言，代码和操作内容保持原样。
+
+问题答案不是执行授权。转发副本不是有效回复目标。旧消息仍可使用带请求编号的命令。
+
+## 本地服务管理
+
+源码目录使用 `node src/cli.js 命令`；已安装技能使用 `node /实际路径/donerelay/scripts/relay.mjs 命令`。
+
+| 命令 | 用途 |
+| --- | --- |
+| `setup` | 私下配对 Telegram，自动生成内部连接配置 |
+| `start` | 启动或复用本机服务 |
+| `status` | 查看状态、版本与待处理数量，不显示秘密 |
+| `doctor` | 检查本机配置、连接、版本和 Telegram 账号 |
+| `stop` | 仅在没有待处理请求或发送时停止 |
+| `uninstall` | 安全停止并保留配置，再提示移除宿主技能或插件 |
+| `uninstall --purge` | 安全停止并删除本地凭据和请求历史 |
+
+技能在发起请求和读取结果前会自动启动或复用服务。不同 Agent 会共享同一系统用户的服务。更新时先完成待处理请求，再用新工具包执行 `stop` 和 `start`；版本不同不会自动中断旧服务。
+
+后台服务是独立 Node 进程，不安装开机启动项。崩溃或重启后，下次调用会启动服务；原有待确认请求会被取消。等待中的调用断线时不会推断批准。电脑和 Agent 必须保持运行、避免休眠，工具无法复活已经结束的会话。
+
+默认数据目录为 `~/.config/donerelay/local/`，目录权限 0700，文件权限 0600。凭据位于项目之外，不导出到 Agent 的环境变量。同一系统用户仍可访问这些文件，不能把文件权限当作与 Agent 的隔离。
+
+## 原生 Codex 任务
 
 ```sh
-node --env-file="$HOME/.config/donerelay/agent.env" src/cli.js codex --cwd /你的项目绝对路径 --prompt "检查项目并运行测试"
+node src/cli.js codex \
+  --cwd /项目的绝对路径 \
+  --prompt "检查这个项目并运行测试。"
 ```
 
-它只转发已支持的单次审批、非敏感问题和完成通知，不绕过沙箱，不提供会话级无限授权。需实测你的 Codex 版本。Codex 0.154.0 的原生结构化问题需使用 `donerelay codex --plan`；该模式用于规划，不执行操作。
+此命令自动启动本地服务，并创建由适配器持有的新线程。结构化规划问题可使用 `--plan`。原生权限保持有效；工具不接管其他终端，也不提供会话级无限授权。Claude 当前通过显式技能请求集成，不拦截所有原生权限提示。
 
-微信使用腾讯公开客户端协议。需要单独授权设置 WEIXIN_BOT_TOKEN 与 WEIXIN_USER_ID，先私聊建立上下文。没有扫码登录向导，也不会读取其他应用的凭证。长时间不互动后的发送、账号资格和会话过期必须实测。详见 [微信说明](docs/WEIXIN.md)。
+## 验证与限制
 
-## 默认拒绝与发布状态
+```sh
+npm ci --ignore-scripts
+npm test
+npm run check:discovery
+npm run check:package
+claude plugin validate . --strict
+```
 
-无回复、超时、发送失败都不代表批准；回答问题不是授权执行。主分支在服务重启后取消待确认请求。Docker 只提供桥接服务，不提供已认证 Codex。WhatsApp 签名验证、账号绑定、重放去重和决定持久化都在返回回调成功之前完成。
+运行时代码位于 `skills/donerelay/scripts/runtime/`；`src/` 只是兼容入口。Linux、macOS 和 Windows 的实际验收应分别记录，详见[发布记录](docs/LAUNCH.md)。
 
-[上架调研](docs/MARKETPLACES.md) 区分 OpenAI 的公共插件提交、Claude 的社区目录与单独策展的官方目录。[提交材料](docs/SUBMISSION.md) 已准备草稿和验收用例，但未提交审核。GitHub star、SEO 排名和 AI 引用都没有保证。
+WhatsApp 需要 Meta 业务账号、签名 HTTPS 回调和主动同意，24 小时窗口外没有已批准模板回退。微信没有二维码设置向导，登录和长时间闲置后的投递仍需验证。两者都未集成进 Telegram 设置向导。
+
+[安全说明](SECURITY.md) · [隐私说明](PRIVACY.md) · [使用条款](TERMS.md) · [反馈](https://github.com/tianxinzh/DoneRelay/issues)

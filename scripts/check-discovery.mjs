@@ -54,7 +54,7 @@ check(read('skills/donerelay/agents/openai.yaml').includes('allow_implicit_invoc
 check(read('README.md').includes(pkg.version) && read('README.zh-CN.md').includes(pkg.version), 'README version mismatch');
 check(read('CHANGELOG.md').includes(pkg.version), 'Changelog version missing');
 check(read('docs/SUBMISSION.md').includes('Not submitted'), 'Submission status must remain explicit');
-for (const p of ['skills/donerelay/scripts/relay.mjs', 'skills/donerelay/references/setup.md']) {
+for (const p of ['skills/donerelay/scripts/relay.mjs', 'skills/donerelay/references/setup.md', 'skills/donerelay/scripts/runtime/cli.js', 'skills/donerelay/scripts/runtime/local.js', 'skills/donerelay/scripts/runtime/daemon.js', 'skills/donerelay/scripts/runtime/package.json']) {
   check(fs.existsSync(path.join(root, p)), `Missing bundled skill resource: ${p}`);
 }
 

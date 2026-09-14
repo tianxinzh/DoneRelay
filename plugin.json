@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "donerelay",
-  "version": "0.1.0-alpha.5",
-  "description": "Telegram notifications, remote approvals, and human answers for Codex, Claude Code, and AI agents. Self-hosted Node.js; experimental WeChat support.",
+  "version": "0.1.0-alpha.6",
+  "description": "One local bundle for Telegram notifications, questions, and remote approvals in Codex and Claude Code; experimental WeChat support.",
   "author": {
     "name": "DoneRelay contributors",
     "url": "https://github.com/tianxinzh/DoneRelay"
@@ -29,7 +29,7 @@
       "interface": {
         "displayName": "DoneRelay",
         "shortDescription": "Telegram updates and remote human approvals for AI agents",
-        "longDescription": "Send task notifications, ask bounded questions, and request explicit approval for one operation through a separately configured DoneRelay bridge. Includes a portable agent skill. Requires Node.js 22+, a reachable bridge, and locally configured credentials. WeChat transport is experimental. Does not bypass native agent permissions or guarantee Codex Cloud session continuity.",
+        "longDescription": "One local bundle for Codex and Claude Code with the complete Node.js runtime, guided private Telegram pairing, and automatic service startup. Receive notifications, answer bounded questions and approve or deny one exact operation. Node.js 22+ and a running agent on the same computer are required. Native permissions remain enforced. Experimental WeChat support; hosted runtime compatibility is not verified.",
         "developerName": "DoneRelay contributors",
         "category": "Productivity",
         "capabilities": [

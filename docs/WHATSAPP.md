@@ -12,7 +12,7 @@ All configured channels share the same request ID; the first valid decision wins
 
 Use a Meta developer app with WhatsApp Business Platform, a WhatsApp Business Account (WABA), and its sending phone-number ID. Complete Meta's applicable account/number registration and recipient test setup. Use your app dashboard and current Cloud API documentation for account eligibility and production permissions; DoneRelay cannot register or verify those accounts for you.
 
-Configure these values **only on the trusted bridge host**, outside the agent workspace:
+The Telegram setup wizard does not configure WhatsApp. For low-level adapter development, configure these values privately on the **same computer**, outside the project:
 
 | Variable | Meaning |
 | --- | --- |
@@ -28,9 +28,9 @@ Configure these values **only on the trusted bridge host**, outside the agent wo
 
 Do not share tokens here or in an issue. Use distinct secrets for the agent API and webhook setup. A short-lived dashboard token will expire; select an appropriate authorized token for real deployments. This adapter binds one WABA, one sending number, and one recipient per process. Groups, media, template-button callbacks, and alternate recipient identifier modes are not supported.
 
-## Webhook and VPS setup
+## Developer-only local callback setup
 
-Run `node --env-file=/secure/path/bridge.env src/cli.js serve`, or set `DONERELAY_ENV_FILE=/secure/path/bridge.env` when running `docker compose up --build -d`. Keep the file outside the agent workspace.
+For a controlled adapter test, run `node --env-file=/secure/path/transport.env src/cli.js serve`. This is the [low-level developer entry point](DEVELOPMENT.md), not the local skill installation flow. Keep the file outside the project. The guided bundle currently supports Telegram setup only.
 
 Keep the authenticated agent API on port **8787** private. Route a public HTTPS tunnel or reverse proxy, including Cloudflare Tunnel, to the **separate webhook listener on 8788**. Set Meta's callback to:
 
@@ -46,9 +46,17 @@ Only GET/POST `/webhooks/whatsapp` exists on this listener; `/v1/requests` retur
 
 From your bound personal recipient, message the business number with **START**. That explicitly enables this channel and records the message timestamp. **STOP** disables future WhatsApp sends and decisions; ordinary text does not opt you back in. A fresh START re-enables it. STOP wins over START with the same provider timestamp; wait at least a second before restarting. Other channels are not disabled by a WhatsApp STOP.
 
-```sh
-printf '%s' '{"kind":"question","task":"checkout-fix","message":"Which empty-cart error wording should we use?","channels":["whatsapp"],"ttlSeconds":300}' \
-  | node --env-file=/secure/path/agent.env src/cli.js request --wait
+For this developer test, use the low-level client in a local script and load its private transport environment with Node's `--env-file` option:
+
+```js
+import { Client } from './src/client.js';
+const client = new Client();
+const request = await client.create({
+  kind: 'question', task: 'checkout-fix',
+  message: 'Which empty-cart error wording should we use?',
+  channels: ['whatsapp'], ttlSeconds: 300,
+});
+console.log(await client.wait(request.id));
 ```
 
 Reply `answer ID Cart is empty` with the actual request ID. The caller should read `answered` and the answer. For an approval, read `approved`; an answer, vague agreement, receipt, or delivery status is never authorization. No extra chat acknowledgement is sent for each inbound message; read the caller's result and final task notification.

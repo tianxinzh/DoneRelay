@@ -14,7 +14,8 @@
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
       },
-      "category": "Productivity"
+      "category": "Productivity",
+      "description": "One local bundle for Telegram notifications, questions, and bounded approvals in Codex and Claude Code. Guided setup and automatic startup; experimental WeChat support."
     }
   ]
 }

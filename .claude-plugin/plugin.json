@@ -1,8 +1,8 @@
 {
   "name": "donerelay",
   "displayName": "DoneRelay",
-  "version": "0.1.0-alpha.5",
-  "description": "Telegram notifications, remote approvals, and human answers for Codex, Claude Code, and AI agents. Self-hosted Node.js; experimental WeChat support.",
+  "version": "0.1.0-alpha.6",
+  "description": "One local bundle for Telegram notifications, questions, and remote approvals in Codex and Claude Code; experimental WeChat support.",
   "author": {
     "name": "DoneRelay contributors",
     "url": "https://github.com/tianxinzh/DoneRelay"
