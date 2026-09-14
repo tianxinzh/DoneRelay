@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-alpha.4
+
+- Use one message language at a time for request labels, buttons, instructions, and reply acknowledgements.
+- Add saved Telegram `/language` preferences, CLI/API/environment selection, and agent-guided automatic choice.
+- Keep the selected language on each request and preserve exact proposals and stable callback payloads.
+
 ## 0.1.0-alpha.3
 
 - Keep main’s JSON request schema and cancellation of pending requests on restart as the single supported implementation.

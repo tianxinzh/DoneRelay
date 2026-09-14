@@ -3,8 +3,9 @@ import { createInterface } from 'node:readline';
 import path from 'node:path';
 import { check, RelayError } from '../util.js';
 import { VERSION } from '../version.js';
+import { resolveLanguage, words } from '../language.js';
 
-export function approvalInput(method, p, item) {
+export function approvalInput(method, p, item, language = 'en') {
   check(p?.threadId && p?.turnId && p?.itemId, 'Native approval is missing session identifiers');
   let proposal;
   if (method === 'item/commandExecution/requestApproval') {
@@ -16,16 +17,17 @@ export function approvalInput(method, p, item) {
     check(method === 'item/fileChange/requestApproval' && item?.changes, 'File approval has no inspectable changes');
     proposal = { changes: item.changes, grantRoot: p.grantRoot, reason: p.reason };
   }
-  const message = `${method}\nItem: ${p.itemId}\n${JSON.stringify(proposal, null, 2)}`;
+  const message = `${method}\n${words(language).item}: ${p.itemId}\n${JSON.stringify(proposal, null, 2)}`;
   check(message.length <= 2000, 'Proposal is too large for complete mobile review; review locally instead');
-  return { kind: 'approval', task: `Codex ${p.threadId} / ${p.turnId}`, message };
+  return { kind: 'approval', task: `Codex ${p.threadId} / ${p.turnId}`, message, language };
 }
-export function questionInput(q, p) {
+export function questionInput(q, p, language = resolveLanguage('auto', q?.question)) {
   check(q?.id && typeof q.question === 'string' && !q.isSecret, 'Unsupported or secret question; answer locally');
   const choices = (q.options ?? []).map((o) => `${o.label}: ${o.description ?? ''}`).join('\n');
-  const message = `${q.header ?? 'Question'}\n${q.question}${choices ? `\nOptions (reply with the exact label):\n${choices}` : ''}`;
+  const w = words(language);
+  const message = `${q.header ?? w.questionHeader}\n${q.question}${choices ? `\n${w.options}:\n${choices}` : ''}`;
   check(message.length <= 2000, 'Question is too large for mobile review');
-  return { kind: 'question', task: `Codex ${p.threadId} / ${p.turnId}`, message };
+  return { kind: 'question', task: `Codex ${p.threadId} / ${p.turnId}`, message, language };
 }
 
 // Never forward bridge or messaging credentials into the model-controlled child.
@@ -37,6 +39,8 @@ export function agentEnvironment(env = process.env) {
 // Starts its OWN App Server connection. It does not attach to an arbitrary CLI session.
 export async function runCodex({ prompt, cwd = process.cwd(), client, command = 'codex', plan = false, spawnImpl = spawn }) {
   check(typeof prompt === 'string' && prompt.trim(), 'A prompt is required');
+  const preference = client.language ?? (typeof client.preferences === 'function' ? (await client.preferences()).language : 'auto');
+  const language = resolveLanguage(preference, prompt);
   const env = agentEnvironment();
   const child = spawnImpl(command, ['app-server'], { cwd: path.resolve(cwd), env, stdio: ['pipe', 'pipe', 'inherit'] });
   const rpc = new Map(); const pending = new Map(); const items = new Map();
@@ -81,13 +85,13 @@ export async function runCodex({ prompt, cwd = process.cwd(), client, command = 
     try {
       check(p.threadId === threadId, 'Native request belongs to another thread');
       if (['item/commandExecution/requestApproval', 'item/fileChange/requestApproval'].includes(msg.method)) {
-        const r = await ask(approvalInput(msg.method, p, items.get(p.itemId)));
+        const r = await ask(approvalInput(msg.method, p, items.get(p.itemId), language));
         result = { decision: r.status === 'approved' ? 'accept' : 'decline' };
       } else if (msg.method === 'item/tool/requestUserInput') {
         check(Array.isArray(p.questions) && p.questions.length > 0 && p.questions.length <= 3, 'Invalid native questions');
         const answers = {};
         for (const q of p.questions) {
-          const r = await ask(questionInput(q, p));
+          const r = await ask(questionInput(q, p, language));
           check(r.status === 'answered', 'Question was not answered');
           if (q.options?.length && !q.isOther) check(q.options.some((o) => o.label === r.answer), 'Answer must match an offered option label');
           answers[q.id] = { answers: [r.answer] };
@@ -133,14 +137,16 @@ export async function runCodex({ prompt, cwd = process.cwd(), client, command = 
     send({ method: 'initialized', params: {} });
     const started = await call('thread/start', { cwd: path.resolve(cwd), approvalPolicy: 'untrusted', sandbox: 'workspace-write' });
     threadId = started.thread.id;
-    const turnParams = { threadId, input: [{ type: 'text', text: prompt }] };
+    const languageInstruction = language === 'zh' ? '请使用中文撰写问题、选项说明和最终回复。代码、命令和标识符保持原样。' : 'Write questions, option descriptions, and the final reply in English. Preserve code, commands, and identifiers exactly.';
+    const turnParams = { threadId, input: [{ type: 'text', text: `${prompt}\n\n${languageInstruction}` }] };
     if (plan) {
       check(typeof started.model === 'string' && started.model, 'Codex did not report the model required for plan mode');
       turnParams.collaborationMode = { mode: 'plan', settings: { model: started.model, reasoning_effort: null, developer_instructions: null } };
     }
     await call('turn/start', turnParams);
     const turn = await done;
-    await client.create({ kind: 'notification', task: `Codex ${threadId}`, message: `Turn ${turn?.status ?? 'finished'}\n${lastMessage}`.slice(0, 2000) });
+    const w = words(language);
+    await client.create({ kind: 'notification', language, task: `Codex ${threadId}`, message: `${w.turn} ${w[turn?.status] ?? w.completed}\n${lastMessage}`.slice(0, 2000) });
     return { threadId, status: turn?.status ?? 'unknown' };
   } finally {
     process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop);

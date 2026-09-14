@@ -14,6 +14,7 @@ export function makeServer(relay, token) {
     try {
       if (req.method === 'GET' && req.url === '/healthz') return send(200, { ok: true, version: VERSION });
       check(secretEqual(req.headers.authorization, `Bearer ${token}`), 'Unauthorized', 401);
+      if (req.method === 'GET' && req.url === '/v1/preferences') return send(200, { preferences: { language: relay.preference() } });
       if (req.method === 'POST' && req.url === '/v1/requests') {
         check(req.headers['content-type']?.split(';')[0] === 'application/json', 'Content-Type must be application/json', 415);
         const chunks = []; let size = 0;
@@ -49,7 +50,7 @@ export async function serve(env = process.env) {
       userId: env.WHATSAPP_USER_ID, appSecret: env.WHATSAPP_APP_SECRET,
       verifyToken: env.WHATSAPP_VERIFY_TOKEN, graphVersion: env.WHATSAPP_GRAPH_VERSION, store });
     check(Object.keys(channels).length, 'Configure at least one channel in your local environment');
-    const relay = new Relay(store, channels);
+    const relay = new Relay(store, channels, Date.now, env.DONERELAY_LANGUAGE ?? 'auto');
     server = makeServer(relay, env.DONERELAY_API_TOKEN);
     const port = Number(env.PORT ?? 8787);
     check(Number.isInteger(port) && port > 0 && port < 65536, 'Invalid PORT');

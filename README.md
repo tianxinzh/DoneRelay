@@ -10,7 +10,7 @@ DoneRelay is an open-source, self-hosted **Node.js bridge and agent skill for Co
 
 *Illustrated workflow — not a live agent or account recording. The example shows Telegram; WhatsApp uses the Cloud API setup below.* [Static version / reduced motion](docs/assets/donerelay-checkout-demo-poster.png) · [Editable demo source](scripts/render-checkout-demo.py)
 
-> **Telegram-first prerelease candidate: 0.1.0-alpha.3.** WhatsApp code and automated tests are included; real Telegram/Codex completion, approval, and expiration have been exercised on the VPS. The [launch record](docs/LAUNCH.md) lists remaining phone tests and unvalidated channels. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, Meta, or Tencent.
+> **Telegram-first prerelease candidate: 0.1.0-alpha.4.** WhatsApp code and automated tests are included; real Telegram/Codex completion, approval, and expiration have been exercised on the VPS. The [launch record](docs/LAUNCH.md) lists remaining phone tests and unvalidated channels. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, Meta, or Tencent.
 
 ## What problem does it solve?
 
@@ -81,6 +81,21 @@ node --env-file="$HOME/.config/donerelay/agent.env" examples/request.js
 ```
 
 Reply `answer ID SQLite` using the ID in the message. This example prints the answer and exits; it does not deploy anything. Chinese replies are supported: `回答 ID 内容`, `批准 ID`, and `拒绝 ID`. “Okay” alone is not approval.
+
+## Choose a message language
+
+Each request uses one language for headings, instructions, buttons, and acknowledgements. Choose in your bound Telegram chat:
+
+- `/language en` — English.
+- `/language zh` — Chinese.
+- `/language auto` — let the agent choose from context, with request-text detection as the bridge fallback.
+- `/language` — show the choices in the current language.
+
+The preference is saved across restarts and applies to future requests across channels. You can also set `DONERELAY_LANGUAGE=en|zh|auto` in private configuration, pass `--language en|zh|auto` to `donerelay request` or `donerelay codex`, or include `"language":"en"` in request JSON. `donerelay preferences` reads the saved bridge preference.
+
+Precedence: a CLI language flag overrides request JSON; request JSON overrides an agent environment default; either overrides the saved Telegram preference, which overrides the bridge environment default. An explicit `auto` delegates the choice again. The agent skill reads the preference before writing; it can choose one language from conversation context when automatic mode is selected. Without an agent choice, the bridge selects Chinese when the request message contains Han characters, otherwise English. No model or translation service runs inside the bridge.
+
+The request stores its resolved language, so later preference changes do not relabel existing requests or their replies. Supplied task/message text, commands, and exact approval proposals are preserved; callers must write their prose in the chosen language. Both command languages are still accepted for old messages, but only the selected set is displayed.
 
 ## WhatsApp: notifications, questions, and approvals
 

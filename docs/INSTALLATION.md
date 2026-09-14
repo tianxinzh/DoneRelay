@@ -64,3 +64,5 @@ Use a private configuration file outside the project. The bridge file contains m
 5. Run the harmless question example and read the exact answer in the waiting caller. A health check alone does not prove phone delivery or host permission handling.
 
 The doctor uses read-only health/authentication requests. Bridge mode also checks configured channel formats and Telegram account/private-chat/webhook state. It never changes a webhook, polls replies, creates a request, or prints provider response bodies. It cannot establish that no other bot poller exists. WhatsApp and Weixin checks are local configuration checks, not live account acceptance.
+
+Message language is selected with Telegram `/language`, `DONERELAY_LANGUAGE`, or a request/CLI override. See [language selection](../README.md#choose-a-message-language). The skill reads the saved preference before composing a message; automatic mode lets the agent choose one language from context.

@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
-import { check, delay, RelayError, safeError } from '../util.js';
+import { check, delay, RelayError } from '../util.js';
+import { words, replyLanguage, replyError } from '../language.js';
 
 // Experimental compatible text transport; not an official Tencent integration.
 // Protocol: Tencent/openclaw-weixin/docs/protocol.md, checked 2026-09-12.
@@ -46,9 +47,10 @@ export class Weixin {
     if (typeof m.context_token === 'string' && m.context_token) this.store.meta('weixinContext', m.context_token);
     const body = (m.item_list ?? []).filter((i) => i.type === 1).map((i) => i.text_item?.text ?? '').join('\n');
     if (!body) return;
+    const language = replyLanguage(this.relay, body);
     let ack;
-    try { const r = this.relay.receive('weixin', body, actor); ack = `${r.id}: ${r.status}`; }
-    catch (e) { ack = safeError(e); }
+    try { const r = this.relay.receive('weixin', body, actor); ack = `${r.id}: ${words(r.language ?? language)[r.status]}`; }
+    catch (e) { ack = replyError(e, language); }
     await this.send(ack);
   }
   async poll(signal) {
