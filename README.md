@@ -10,7 +10,7 @@ DoneRelay is an open-source, self-hosted **Node.js bridge and agent skill for Co
 
 *Illustrated workflow — not a live agent or account recording. The example shows Telegram; WhatsApp uses the Cloud API setup below.* [Static version / reduced motion](docs/assets/donerelay-checkout-demo-poster.png) · [Editable demo source](scripts/render-checkout-demo.py)
 
-> **Telegram-first prerelease candidate: 0.1.0-alpha.4.** WhatsApp code and automated tests are included; real Telegram/Codex completion, approval, and expiration have been exercised on the VPS. The [launch record](docs/LAUNCH.md) lists remaining phone tests and unvalidated channels. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, Meta, or Tencent.
+> **Telegram-first prerelease candidate: 0.1.0-alpha.5.** WhatsApp code and automated tests are included; real Telegram/Codex completion, approval, and expiration have been exercised on the VPS. The [launch record](docs/LAUNCH.md) lists remaining phone tests and unvalidated channels. No official marketplace listing, npm publication, or Codex Cloud compatibility is claimed. Independent project; not endorsed by OpenAI, Anthropic, Telegram, Meta, or Tencent.
 
 ## What problem does it solve?
 
@@ -24,7 +24,7 @@ Chat replies are never executed as shell commands. A skill does not automaticall
 
 | Integration | What this source includes | Important boundary |
 | --- | --- | --- |
-| Telegram | Notifications, numbered text answers, approve/deny buttons | Bound private user; live acceptance pending |
+| Telegram | Notifications, direct replies, numbered commands, approve/deny buttons | Bound private user; live acceptance pending |
 | WhatsApp Cloud API | Notifications, questions, approve/deny buttons or explicit text replies | Meta Business setup, HTTPS webhook, START opt-in, 24-hour reply window; live acceptance pending |
 | Personal WeChat / Weixin | Experimental text transport and numbered replies | Separate authorized setup; idle-session behavior unverified |
 | Codex skill | Portable SKILL.md and standalone Node client | Requires a separately running bridge |
@@ -80,7 +80,19 @@ Create `~/.config/donerelay/agent.env` privately (mode 600) with only `DONERELAY
 node --env-file="$HOME/.config/donerelay/agent.env" examples/request.js
 ```
 
-Reply `answer ID SQLite` using the ID in the message. This example prints the answer and exits; it does not deploy anything. Chinese replies are supported: `回答 ID 内容`, `批准 ID`, and `拒绝 ID`. “Okay” alone is not approval.
+Tap **Reply** on the Telegram question and type `SQLite`; no request ID is needed. You can also send `answer ID SQLite` using the ID in the message. This example prints the answer and exits; it does not deploy anything. Chinese replies are supported: `回答 ID 内容`, `批准 ID`, and `拒绝 ID`. “Okay” alone is not approval.
+
+## Reply directly in Telegram
+
+For a new question, Telegram opens its reply UI. Type your answer, such as `BLUE`, and send it. You can also tap **Reply** on the original request later. The same waiting caller receives the answer.
+
+For an approval, use its buttons or reply to the original message with exactly `approve` or `deny` (or the corresponding command in the selected language). “Yes” and “okay” do not approve operations. Questions always produce answers, never operation approvals.
+
+DoneRelay records the successful send's Telegram message, chat, and bot IDs and matches the incoming reply to that record. It does not infer a request from copied text or a forwarded message. Unknown targets, conflicting request IDs, unconfirmed delivery, wrong senders, expired/cancelled requests, and repeated replies cannot grant a new decision. Reply with text; media, voice notes and edits are not answers in this version. Send `/language` commands as standalone messages; when replying to a question, that text is treated as an answer.
+
+Direct replies apply to messages sent by alpha.5 or newer. Older messages lack the stored mapping: use their numbered commands, subject to expiry and restart cancellation. The numbered commands continue to work for new messages too.
+
+This uses Telegram's documented [message reply metadata](https://core.telegram.org/bots/api#message) and [ForceReply UI](https://core.telegram.org/bots/api#forcereply). The reply mapping is kept with the request, so the existing seven-day retention and restart cancellation rules apply.
 
 ## Choose a message language
 

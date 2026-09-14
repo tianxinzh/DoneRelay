@@ -11,7 +11,7 @@ mkdir -p ~/.agents/skills
 cp -R skills/donerelay ~/.agents/skills/
 ```
 
-Reload the host as required by your installed version. Ask: “Use $donerelay to notify me when this harmless test task finishes.” For a question: “Use $donerelay to ask whether the test example should use SQLite; wait for my numbered answer.” A successful answer must be `answered`, not permission to run unrelated commands.
+Reload the host as required by your installed version. Ask: “Use $donerelay to notify me when this harmless test task finishes.” For a question: “Use $donerelay to ask whether the test example should use SQLite; wait for my direct Telegram reply.” A successful answer must be `answered`, not permission to run unrelated commands.
 
 A repo-scoped installation can instead put the skill in that project's `.agents/skills/`. See the [official skills guide](https://developers.openai.com/codex/skills/). The included root `plugin.json` and `.agents/plugins/marketplace.json` are a separate local plugin packaging option described by [OpenAI](https://developers.openai.com/plugins/build/plugins), not a public directory listing.
 
@@ -36,7 +36,7 @@ A metadata pass does not test a Telegram account or native permissions. DoneRela
 
 ## Clean-host smoke test
 
-Use a harmless test project and a private bot. Verify that the skill can locate `scripts/relay.mjs` after installation, create one question, and read back your numbered answer. Try a deny and an expired approval before any consequential operation. Record host version and the exact DoneRelay commit. Do not count a mock-provider test as live messaging acceptance.
+Use a harmless test project and a private bot. Verify that the skill can locate `scripts/relay.mjs` after installation, create one question, and read back your direct Telegram answer. Try a deny and an expired approval before any consequential operation. Record host version and the exact DoneRelay commit. Do not count a mock-provider test as live messaging acceptance.
 
 No `.env` or credential value belongs in this guide's examples. A cloud sandbox's localhost is not the bridge on your laptop. Remote deployment needs secure connectivity; do not disable sandboxing or authentication to make a smoke test pass.
 
@@ -46,7 +46,7 @@ No `.env` or credential value belongs in this guide's examples. A cloud sandbox'
 | --- | --- |
 | Skill visible, no message | Bridge running, host network access, configured token, per-channel delivery results |
 | Telegram polling conflict | Another consumer or webhook using the same bot |
-| Reply ignored | Exact request ID, response type, bound private chat/user, expiry |
+| Reply ignored | Original request message (for direct replies), request ID (for commands), response type, bound private chat/user, expiry |
 | Request cancelled after restart | Expected behavior on main; create a new request if still needed |
 | Cloud agent cannot connect | Network namespace and reachable secure endpoint; Cloud compatibility is not verified |
 | WeChat cannot send after idle time | Conversation context/session may be invalid; do not infer success or approval |

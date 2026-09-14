@@ -7,7 +7,7 @@ const response = (data, ok = true) => ({ ok, json: async () => data });
 
 test('Telegram sends plain text and exact approval callbacks', async () => {
   let request;
-  const telegram = new Telegram({ token: '123:secret', chatId: '10', userId: '10', store: store(), fetchImpl: async (url, opts) => { request = { url, ...opts }; return response({ ok: true, result: {} }); } });
+  const telegram = new Telegram({ token: '123:secret', chatId: '10', userId: '10', store: store(), fetchImpl: async (url, opts) => { request = { url, ...opts }; return response({ ok: true, result: { message_id: 1, chat: {id:10,type:"private"}, from: {id:123,is_bot:true} } }); } });
   await telegram.send('<untrusted text>', { kind: 'approval', id: 'ABCDEF012345' });
   const body = JSON.parse(request.body);
   assert.equal(body.parse_mode, undefined);

@@ -12,7 +12,7 @@ DoneRelay 是开源、自托管的 Node.js 桥接服务和 Agent Skill：通过 
 
 ## 当前状态
 
-这是以 Telegram 为首发范围的 `0.1.0-alpha.4` 候选版本。已在 VPS 实测 Codex 完成通知、手机批准和超时拒绝执行；其余验收与阻塞项见 [发布记录](docs/LAUNCH.md)。WhatsApp 和微信尚未完成真实账号验收。 未上架官方目录、未发布 npm，不承诺 Codex Cloud 可用，也不是相关平台的官方产品。
+这是以 Telegram 为首发范围的 `0.1.0-alpha.5` 候选版本。已在 VPS 实测 Codex 完成通知、手机批准和超时拒绝执行；其余验收与阻塞项见 [发布记录](docs/LAUNCH.md)。WhatsApp 和微信尚未完成真实账号验收。 未上架官方目录、未发布 npm，不承诺 Codex Cloud 可用，也不是相关平台的官方产品。
 
 工作流：Agent 提出具体问题 → 发到绑定账号 → 你回复 → 仍在运行的调用方读取结果并继续检查原生权限。Skill 不会自动接管任意终端，不能复活已终止的任务。动画里的测试数量、commit 和部署结果属于虚构示例，不是本工具的实测结果。
 
@@ -32,6 +32,12 @@ chmod 600 ~/.config/donerelay/bridge.env
 本地生成随机 DONERELAY_API_TOKEN；配置 Telegram bot token、个人 chat ID 和 user ID。先私聊机器人，再运行 `node --env-file="$HOME/.config/donerelay/bridge.env" src/cli.js serve`。运行同样带配置的 `src/cli.js doctor --bridge` 检查设置。为 Agent 单独创建仅含 URL 和 API token 的 `agent.env`；用此文件运行 `examples/request.js`，收到问题后回复 `回答 请求编号 SQLite`。
 
 审批使用 `批准 请求编号`、`拒绝 请求编号` 或按钮；含糊的“好”不是授权。三个渠道共用请求，先到的有效决定生效。凭证应放在 Agent 工作目录之外，最好让桥接服务使用单独系统用户；不要把 token 放进聊天、issue 或 Git。
+
+## 直接回复 Telegram 消息
+
+收到新问题后，直接在 Telegram 的回复框输入答案即可，也可以点击原始问题的“回复”，无需复制请求编号。审批仍需点击按钮，或直接回复原始审批消息并明确输入“批准”或“拒绝”。回答问题不会批准操作。
+
+服务只关联已成功发送并记录的原始消息。转发、复制、编号冲突、陌生发送者、过期、取消和重复回复不会产生新的授权。此功能适用于 alpha.5 及以后发送的消息；旧消息仍使用原有的带编号命令。暂不接受语音、媒体或编辑消息作为答案。
 
 ## 消息语言
 

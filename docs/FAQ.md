@@ -26,7 +26,7 @@ From the bound WhatsApp recipient, START opts into that channel and STOP disable
 
 ## Can I answer from my phone and let the task continue?
 
-An integrated, still-running caller can read your numbered response and continue. It must distinguish an answer from approval and preserve native host permissions. Installing a skill does not give control of an unrelated terminal or revive a stopped process.
+An integrated, still-running caller can read your direct Telegram reply or numbered response and continue. It must distinguish an answer from approval and preserve native host permissions. Installing a skill does not give control of an unrelated terminal or revive a stopped process.
 
 ## Does it approve every Claude Code permission prompt?
 
@@ -67,3 +67,7 @@ Not currently claimed. Install manifests and a self-hosted catalog are present. 
 ## Does llms.txt improve AI search rankings?
 
 No ranking benefit is established for this project. The file is an optional factual documentation index. Google's [AI search guidance](https://developers.google.com/search/docs/appearance/ai-features) says no special AI text files or schema are required for its AI search features.
+
+## Can I use Telegram’s Reply action?
+
+Yes. Reply to a question sent by alpha.5 or newer with plain text. Approval replies require an explicit approve/deny command or a button. Older messages, forwarded copies, and replies to acknowledgements do not provide a request binding. See [direct replies](../README.md#reply-directly-in-telegram).

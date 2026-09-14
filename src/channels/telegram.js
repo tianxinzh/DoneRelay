@@ -1,10 +1,11 @@
-import { check, delay, RelayError } from '../util.js';
+import { check, delay, parseReply, RelayError } from '../util.js';
 import { resolveLanguage, words, replyLanguage, replyError } from '../language.js';
 export class Telegram {
   constructor({ token, chatId, userId, store, fetchImpl = fetch }) {
     check(token && /^\d+:[\w-]+$/.test(token), 'Invalid TELEGRAM_BOT_TOKEN');
     check(/^\d+$/.test(chatId) && /^\d+$/.test(userId), 'Telegram private chat/user IDs must be positive numeric strings');
     Object.assign(this, { token, chatId, userId, store, fetchImpl });
+    this.botId = token.split(':')[0];
   }
   authorize(a) { return a?.private === true && String(a.userId) === this.userId && String(a.chatId) === this.chatId; }
   async api(method, body, signal) {
@@ -22,11 +23,48 @@ export class Telegram {
   async send(message, request) {
     const w = words(request?.language ?? resolveLanguage('auto', message));
     const body = { chat_id: this.chatId, text: message, link_preview_options: { is_disabled: true } };
+    if (request?.kind === 'question') {
+      body.text += `\n\n${w.directQuestion}`;
+      body.reply_markup = { force_reply: true, input_field_placeholder: w.replyPlaceholder };
+    }
+    if (request?.kind === 'approval') body.text += `\n\n${w.directApproval}`;
     if (request?.kind === 'approval') body.reply_markup = { inline_keyboard: [[
       { text: w.approveButton, callback_data: `approve ${request.id}` },
       { text: w.denyButton, callback_data: `deny ${request.id}` },
     ]] };
-    return this.api('sendMessage', body);
+    const sent = await this.api('sendMessage', body);
+    if (!request) return sent;
+    check(Number.isSafeInteger(sent?.message_id) && sent.message_id > 0 && sent.chat?.type === 'private' &&
+      String(sent.chat.id) === this.chatId && sent.from?.is_bot === true && String(sent.from.id) === this.botId,
+      'Telegram returned an invalid message receipt', 502);
+    return { providerMessageId: String(sent.message_id), providerChatId: this.chatId, providerBotId: this.botId };
+  }
+  repliedRequest(message) {
+    const original = message.reply_to_message;
+    check(!message.external_reply && !message.forward_origin && original && !original.forward_origin &&
+      Number.isSafeInteger(original.message_id) && original.message_id > 0 &&
+      original.chat?.type === 'private' && String(original.chat.id) === this.chatId &&
+      original.from?.is_bot === true && String(original.from.id) === this.botId,
+      'Reply to the original DoneRelay request message, or send a numbered command without replying.');
+    const matches = Object.values(this.store.data.requests).filter(r => {
+      const d = r.deliveries.telegram;
+      return d?.status === 'sent' && d.providerMessageId === String(original.message_id) &&
+        d.providerChatId === this.chatId && d.providerBotId === this.botId;
+    });
+    check(matches.length === 1, 'Reply to the original DoneRelay request message, or send a numbered command without replying.');
+    return matches[0];
+  }
+  directInput(request, input) {
+    check(typeof input === 'string' && input.trim(), 'Reply with text to the original request.');
+    const command = parseReply(input);
+    if (command) {
+      check(command.id === request.id, 'Reply request ID does not match the original message.');
+      return input;
+    }
+    if (request.kind === 'question') return `answer ${request.id} ${input.trim()}`;
+    check(request.kind === 'approval', 'This message does not accept answers or decisions.');
+    check(/^(approve|deny|批准|拒绝)$/i.test(input.trim()), 'Reply with approve or deny, or use the buttons.');
+    return `${input.trim()} ${request.id}`;
   }
   async handle(update) {
     const q = update.callback_query;
@@ -34,8 +72,9 @@ export class Telegram {
     const sender = q?.from ?? m?.from;
     const actor = { userId: sender?.id, chatId: m?.chat?.id, private: m?.chat?.type === 'private' };
     if (!this.authorize(actor)) return;
-    const input = q?.data ?? m?.text;
-    const command = !q && typeof input === 'string' && input.trim().match(/^\/language(?:\s+(\S+))?$/i);
+    let input = q?.data ?? m?.text;
+    const hasReply = !q && Boolean(m?.reply_to_message || m?.external_reply);
+    const command = !q && !hasReply && typeof input === 'string' && input.trim().match(/^\/language(?:\s+(\S+))?$/i);
     if (command) {
       const selected = command[1]?.toLowerCase();
       const language = resolveLanguage(['en', 'zh'].includes(selected) ? selected : this.relay.preference(), sender?.language_code?.startsWith('zh') ? '中文' : 'English');
@@ -44,9 +83,16 @@ export class Telegram {
       this.store.meta('language', selected);
       return this.send(`${w.selected}${selected === 'auto' ? ` ${w.auto}` : ''}`);
     }
-    const language = replyLanguage(this.relay, input);
+    let language = replyLanguage(this.relay, input);
     let ack;
-    try { const r = this.relay.receive('telegram', input, actor); ack = `${r.id}: ${words(r.language ?? language)[r.status]}`; }
+    try {
+      if (hasReply) {
+        const request = this.repliedRequest(m);
+        language = request.language ?? resolveLanguage('auto', request.message);
+        input = this.directInput(request, input);
+      }
+      const r = this.relay.receive('telegram', input, actor); ack = `${r.id}: ${words(r.language ?? language)[r.status]}`;
+    }
     catch (e) { ack = replyError(e, language); }
     // The state transition happens BEFORE the acknowledgement. Delivery retries cannot approve twice.
     if (q) {

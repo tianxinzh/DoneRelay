@@ -48,6 +48,8 @@ export class Relay {
         const result = await this.channels[name].send(formatRequest(r), r);
         delivery = { status: 'sent' };
         if (result?.providerMessageId) delivery.providerMessageId = result.providerMessageId;
+        if (result?.providerChatId) delivery.providerChatId = result.providerChatId;
+        if (result?.providerBotId) delivery.providerBotId = result.providerBotId;
       } catch (error) {
         delivery = { status: 'failed', error: 'Delivery failed; check channel credentials, context, and connectivity.' };
         if (['whatsapp_opt_in_required', 'whatsapp_window_closed'].includes(error?.code)) delivery.code = error.code;

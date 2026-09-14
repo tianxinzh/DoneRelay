@@ -14,7 +14,7 @@ import { questionInput } from '../src/adapters/codex.js';
 function setup(t, language='auto') {
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'donerelay-language-'));const store=new Store(path.join(dir,'state.json'));
   const sent=[];
-  const telegram=new Telegram({token:'123:fixture',chatId:'10',userId:'10',store,fetchImpl:async(url,options)=>{sent.push({method:url.split('/').at(-1),body:JSON.parse(options.body)});return new Response(JSON.stringify({ok:true,result:{}}));}});
+  const telegram=new Telegram({token:'123:fixture',chatId:'10',userId:'10',store,fetchImpl:async(url,options)=>{sent.push({method:url.split('/').at(-1),body:JSON.parse(options.body)});return new Response(JSON.stringify({ok:true,result:{message_id:sent.length,chat:{id:10,type:"private"},from:{id:123,is_bot:true}}}));}});
   const relay=new Relay(store,{telegram},Date.now,language);telegram.relay=relay;
   t.after(()=>{store.close();fs.rmSync(dir,{recursive:true,force:true})});
   return {store,relay,telegram,sent};
