@@ -2,11 +2,11 @@
 
 Your coding agent is waiting for a decision. Reply from Telegram and keep the task moving.
 
-DoneRelay is **one local bundle for Codex and Claude Code**. It includes the skill, Telegram integration, request store, and background service. Install it where your agent runs. Reuse your existing Slack MCP connection for self notifications, or pair Telegram once for questions and approvals with automatic local startup. No separate server, Docker deployment, bridge URL, or manually generated API token is part of normal installation.
+DoneRelay is **one local bundle for Codex and Claude Code**. It includes the skill, Telegram integration, request store, and background service. Install it where your agent runs. Reuse your existing Slack MCP connection for self notifications, thread answers and explicit decisions, or pair Telegram once for questions and approvals with automatic local startup. No separate server, Docker deployment, bridge URL, or manually generated API token is part of normal installation.
 
 [Slack self-DM](docs/SLACK.md) · [Installation](docs/INSTALLATION.md) · [FAQ](docs/FAQ.md) · [Validation record](docs/LAUNCH.md) · [简体中文](README.zh-CN.md)
 
-Current source candidate: **0.1.0-alpha.7**. Slack self notifications reuse the host MCP connection; Telegram remains the remote-decision beta scope. WhatsApp and experimental WeChat adapters remain developer previews. No npm publication, official marketplace acceptance, or hosted-agent compatibility is claimed.
+Current source candidate: **0.1.0-alpha.8**. Slack self notifications and thread decisions reuse the host MCP connection; Telegram remains the remote-decision beta scope. WhatsApp and experimental WeChat adapters remain developer previews. No npm publication, official marketplace acceptance, or hosted-agent compatibility is claimed.
 
 ## Install
 
@@ -52,7 +52,7 @@ After installing the skill/plugin, ask:
 
 DoneRelay uses the connected host's Slack tools to verify your identity and self-DM, then sends through that same connection. **Slack-only use skips Telegram setup and the local background service.** No Slack token, new bot, or second MCP connection is required. The connection needs identity, self-DM lookup and write capabilities; missing capabilities are reported rather than guessed.
 
-This route supports self notifications, not Slack replies or approvals. Provider acceptance does not prove a phone push alert. Live Slack validation is pending because no Slack connection was exposed in the validation host. See [Slack behavior and setup](docs/SLACK.md).
+Reply in the original message’s thread to answer a question, or type `approve` / `deny` for an exact operation. Decisions require complete raw thread reads and are bound to one running workflow and consumed once; native permissions remain in force. Provider acceptance does not prove a phone push alert. Live Slack validation is pending because no Slack connection was exposed in the validation host. See [Slack behavior and setup](docs/SLACK.md).
 
 ## Use it with Telegram
 

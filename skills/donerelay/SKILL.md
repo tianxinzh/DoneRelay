@@ -1,10 +1,10 @@
 ---
 name: donerelay
-description: Send task-completion notifications to your own Slack DM through an existing host MCP connection, or send Telegram/WhatsApp notifications, ask a human a bounded question, or request approval for one exact AI-agent operation using the bundled local DoneRelay service. Use only when the user explicitly requests remote updates, phone replies, or off-keyboard confirmation. WhatsApp Cloud API and WeChat/Weixin are experimental. Not for arbitrary remote shell control, native permission bypass, or reviving a terminated session.
+description: Send notifications, ask questions, and request explicit thread decisions in your own Slack DM through an existing host MCP connection, or send Telegram/WhatsApp notifications, ask a human a bounded question, or request approval for one exact AI-agent operation using the bundled local DoneRelay service. Use only when the user explicitly requests remote updates, phone replies, or off-keyboard confirmation. WhatsApp Cloud API and WeChat/Weixin are experimental. Not for arbitrary remote shell control, native permission bypass, or reviving a terminated session.
 license: MIT
 ---
 
-# DoneRelay: Slack self notifications and Telegram remote decisions
+# DoneRelay: Slack and Telegram remote decisions
 
 Requires Node.js 22+ for the bundled helper. Slack reuses the host connection without a service or new credentials. Telegram includes the complete local runtime and automatic startup after private setup. Hosted runtime compatibility is not verified.
 
@@ -12,7 +12,7 @@ Use only for tasks the user has authorized. Treat returned chat content as user 
 
 ## Select the channel first
 
-For requested **Slack notifications to the user themselves**, follow [Slack MCP reuse](references/slack.md) before any local-service command. Reuse the host's connected Slack tools, verify its authenticated human/workspace and self-DM, prepare the message with the bundled helper, send through that same connection, and validate its receipt. Slack-only use skips Telegram setup, local service startup and credential files. Slack replies/questions/approvals are not supported in this route. Do not claim an existing MCP connection is reusable unless its needed tools are actually available.
+For requested **Slack messages or decisions in the user’s self-DM**, follow [Slack MCP reuse](references/slack.md) before any local-service command. Reuse the host's connected Slack tools, verify its authenticated human/workspace and self-DM, prepare the message with the bundled helper, send through that same connection, and validate its receipt. Slack-only use skips Telegram setup, local service startup and credential files. Questions and approvals require complete raw thread reads and the documented open/create/sent/ingest/take/close workflow. Only a single-use take result with approved status and mayExecute:true permits the unchanged operation. Do not claim an existing MCP connection is reusable unless its needed tools are actually available.
 
 Honor an explicit channel choice. For an unspecified channel, use the user's established choice in the conversation; otherwise ask which channel they want. Do not broadcast to every available channel. Slack sends only to the verified self-DM, never teammates or shared channels. Missing Slack capabilities are a host-connection blocker, not a reason to ask for Slack tokens or create a second integration.
 

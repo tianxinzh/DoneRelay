@@ -32,14 +32,20 @@ export function readPrivate(file) {
 }
 export function writePrivate(file, value) {
   const temporary = `${file}.${randomBytes(8).toString('hex')}.tmp`;
-  try { fs.writeFileSync(temporary, JSON.stringify(value, null, 2), { mode: 0o600, flag: 'wx' }); fs.renameSync(temporary, file); }
-  finally { fs.rmSync(temporary, { force: true }); }
+  let fd;
+  try { fd = fs.openSync(temporary, 'wx', 0o600); fs.writeFileSync(fd, JSON.stringify(value, null, 2)); fs.fsyncSync(fd); fs.closeSync(fd); fd = undefined; fs.renameSync(temporary, file);
+    if (process.platform !== 'win32') {
+      const directory = fs.openSync(path.dirname(file), 'r');
+      try { fs.fsyncSync(directory); } finally { fs.closeSync(directory); }
+    }
+  }
+  finally { if (fd !== undefined) fs.closeSync(fd); fs.rmSync(temporary, { force: true }); }
 }
 function alive(pid) {
   if (!Number.isSafeInteger(pid) || pid <= 0) return false;
   try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; }
 }
-async function controlled(paths, action) {
+export async function controlled(paths, action) {
   privateDirectory(paths.home);
   let fd;
   for (let n = 0; n < 120; n++) {
@@ -173,10 +179,15 @@ export async function stopLocal(env = process.env) {
 export async function uninstallLocal(env = process.env, { purge = false } = {}) {
   const paths = localPaths(env);
   return controlled(paths, async () => {
+    const slackFile = path.join(paths.home, 'slack.json');
+    if (fs.existsSync(slackFile)) {
+      const slack = readPrivate(slackFile);
+      check(!Object.values(slack.requests).some(r => !r.consumedAt && ['prepared', 'pending', 'approved', 'answered'].includes(r.status) && r.expiresAt > Date.now() && !slack.sessions[r.sessionId]?.closed), 'Close outstanding Slack workflows before uninstalling.');
+    }
     await stopUnlocked(paths, env);
     if (purge) {
       // Delete only owned bundle records, never an arbitrary directory or host plugin installation.
-      for (const name of ['config.json', 'connection.json', 'runtime.json', 'state.json']) {
+      for (const name of ['config.json', 'connection.json', 'runtime.json', 'state.json', 'slack.json']) {
         const file = path.join(paths.home, name);
         if (fs.existsSync(file)) { readPrivate(file); fs.unlinkSync(file); }
       }

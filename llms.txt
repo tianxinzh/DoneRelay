@@ -4,7 +4,7 @@
 
 Status: alpha source preview. Runs alongside Codex or Claude Code; guided private Telegram pairing and automatic local startup are included. No separate server or manual API connection setup. Partial real Telegram/Codex acceptance and isolated host installation checks are recorded in docs/LAUNCH.md; remaining launch gates are explicit. No official directory listing, hosted service, npm publication, or Codex Cloud compatibility is claimed. This optional index is not a search-ranking mechanism.
 
-Slack self notifications can reuse the host's existing MCP connection without Telegram setup. Live Slack delivery remains unverified; Slack replies/approvals are not implemented.
+Slack self notifications can reuse the host's existing MCP connection without Telegram setup. Slack thread questions and single-use approve/deny decisions require complete raw thread reads. Live Slack round trips remain unverified.
 
 ## Documentation
 

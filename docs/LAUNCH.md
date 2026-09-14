@@ -1,6 +1,6 @@
 # Local bundle launch record
 
-Current candidate: `0.1.0-alpha.7`. Alpha.6 evidence below is historical for the local-bundle runtime. The authoritative runtime ships inside `skills/donerelay/scripts/runtime/`; `src/` only forwards existing entry points. Main's request schema, durable JSON decisions, and cancellation of pending requests on restart are preserved. The alternative PR #2 implementation remains superseded.
+Current candidate: `0.1.0-alpha.8`. Alpha.6 evidence below is historical for the local-bundle runtime. The authoritative runtime ships inside `skills/donerelay/scripts/runtime/`; `src/` only forwards existing entry points. Main's request schema, durable JSON decisions, and cancellation of pending requests on restart are preserved. The alternative PR #2 implementation remains superseded.
 
 ## Alpha.6 scope
 
@@ -43,10 +43,18 @@ Implementation introduced in `84f7c5c` (PR #6), with follow-up doctor guidance/c
 
 Private evidence includes sanitized test logs, wizard results, host discovery, local doctor output and native question status. No credentials, private provider IDs or task traces are committed.
 
-## Alpha.7 Slack self notifications
+## Historical alpha.7 Slack self notifications
 
-The skill reuses an existing host Slack MCP connection for notifications to the connected human's own DM. Preparation and receipt helpers require the same workspace/connection, complete self-only membership and a provider timestamp. No Slack credential import, new MCP connection, Telegram setup or local daemon is required for this route. Slack questions/replies/approvals and native adapter Slack forwarding are not implemented.
+The skill reuses an existing host Slack MCP connection for notifications to the connected human's own DM. Preparation and receipt helpers require the same workspace/connection, complete self-only membership and a provider timestamp. No Slack credential import, new MCP connection, Telegram setup or local daemon is required for this route. At alpha.7, Slack questions/replies/approvals and native adapter Slack forwarding were not implemented.
 
 Live blocker: no Slack MCP tools were exposed in this agent session and neither local CLI listed a Slack connection. Actual self-DM delivery and phone alerts remain unverified. Fixture tests cannot close this gate. Enable the intended host connection and verify a harmless self notification; see [Slack acceptance](SLACK.md).
 
 Alpha.7 validation: 97 tests pass on Node 22.23.1 and 24.21.0; all 11 Slack tests also pass in an isolated read-only Linux container. Installed package checks pass on both Node versions. Actual Claude strict marketplace/plugin validation and the skill validator pass. These checks use simulated Slack connector responses; no live Slack message or phone alert was verified.
+
+## Alpha.8 Slack thread decisions
+
+The bundled helper now records workflow-bound questions and approvals locally, reads host-provided complete raw thread snapshots, and consumes decisions once before continuation. Explicit approve/deny, sender/workspace/DM/thread binding, unchanged proposal, expiry, duplicate handling and fresh-session restart invalidation are covered by automated tests. No Slack daemon or new credentials are introduced. Native Codex/Claude permission-dialog forwarding is outside this host-mediated route; native gates remain in force.
+
+Live blocker persists: this host exposes no Slack MCP connection. Actual notification/question/approve/deny round trips, phone alerts and real connector provenance remain unverified. The helper trusts actual host MCP output and does not independently attest that a physical human typed a message. Follow the acceptance checklist in SLACK.md before claiming live support for a specific connector.
+
+Alpha.8 validation on AlmaLinux 10.2 (2026-09-14): 112 tests pass on Node 22.23.1 and 24.21.0; 26 Slack tests pass in an isolated read-only Linux container. Installed package/copied-skill checks, actual Claude Code 2.1.261 marketplace/plugin validation and the skill validator pass. The suite includes a disposable marker operation after single-use approval, denial/timeout without permission, concurrent consumption, write failure, modified parent, raw-thread routing and copied helper processes. All Slack provider replies are fixtures; no live Slack send or phone decision is claimed.
