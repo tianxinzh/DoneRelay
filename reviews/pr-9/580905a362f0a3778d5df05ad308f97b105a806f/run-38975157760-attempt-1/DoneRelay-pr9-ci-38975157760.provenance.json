@@ -1,0 +1,35 @@
+{
+  "repository": "tianxinzh/DoneRelay",
+  "pull_request": 9,
+  "pull_request_url": "https://github.com/tianxinzh/DoneRelay/pull/9",
+  "source_head_sha": "580905a362f0a3778d5df05ad308f97b105a806f",
+  "tested_merge_sha": "2540c62f67791240c6502ce2e215ca8a3c03e0a8",
+  "binding_evidence": "Connected GitHub PR metadata and checkout log (DoneRelay/research-daybook) or run-generated tested_sha summary (finNexus). Pull-request-triggered CI tests the synthetic merge commit, not the head directly.",
+  "run_id": 38975157760,
+  "run_number": 33,
+  "run_url": "https://github.com/tianxinzh/DoneRelay/actions/runs/38975157760",
+  "workflow_event": "pull_request",
+  "run_conclusion": "success",
+  "successful_jobs": [
+    "test (22)",
+    "test (24)"
+  ],
+  "captured_at_utc": "2026-10-16T22:21:21.616Z",
+  "screenshot_file": "DoneRelay-pr9-ci-38975157760.jpg",
+  "screenshot_sha256": "84b1a4ce99bf2651e3d49b2e28f3cb8c27f14dc6a8249f6a51aa96c0fa0b7b35",
+  "screenshot_bytes": 60449,
+  "screenshot_mime_type": "image/jpeg",
+  "dimensions_px": [
+    1165,
+    747
+  ],
+  "capture_method": "Live authenticated GitHub Actions summary in dot cloud browser via supported cua_repl Tab.getScreenshot(). Original returned bytes saved directly.",
+  "image_transformations": [],
+  "limitations": [
+    "Shows GitHub PR merge CI, not a direct-head workflow_dispatch run.",
+    "Screenshot is the actual viewport, not fabricated or rendered from local HTML."
+  ],
+  "checkout_log_evidence": [
+    "2026-10-16T22:20:36.5502933Z HEAD is now at 2540c62 Merge 580905a362f0a3778d5df05ad308f97b105a806f into 105cec5fd8dd8d13570b172e46cc62a5dd7f7b17"
+  ]
+}
